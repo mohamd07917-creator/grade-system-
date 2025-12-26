@@ -317,6 +317,25 @@
             font-size: 0.8rem;
         }
 
+        /* أيقونة تسجيل الخروج */
+        .logout-header-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .logout-header-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
         /* شريط البحث */
         .search-container {
             background-color: var(--white);
@@ -1878,7 +1897,7 @@
         <div class="container">
             <div class="developer-info">
                 <i class="fas fa-code"></i>
-                <span>حقوق البرنامج © 2023 - مطور البرنامج: الاستاذ محمد عبد الزهره</span>
+                <span>مطور النظام: الاستاذ محمد عبد الزهره</span>
             </div>
             <div class="header-content">
                 <div class="logo">
@@ -1897,11 +1916,15 @@
                         <i class="fas fa-bell"></i> الإشعارات
                         <span class="notification-badge" id="notificationBadge">0</span>
                     </button>
+                    <!-- زر تسجيل الخروج -->
+                    <button class="logout-header-btn" id="logoutHeaderBtn">
+                        <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                    </button>
                     <div class="user-info">
                         <i class="fas fa-user-tie"></i>
                         <div>
                             <p id="currentUserRole">مدير المدرسة</p>
-                            <p id="currentUserName">د.مازن عبد الزهرة رزيج</p>
+                            <p id="currentUserName">د.مازن عبد الزهره</p>
                         </div>
                     </div>
                 </div>
@@ -1988,9 +2011,6 @@
             </button>
             <button class="btn btn-warning" id="manageCodesBtn" style="display: none;">
                 <i class="fas fa-key"></i> إدارة أكواد المدرسين
-            </button>
-            <button class="btn btn-notification" id="viewNotificationsBtn" style="display: none;">
-                <i class="fas fa-history"></i> سجل التغييرات
             </button>
         </div>
 
@@ -2270,6 +2290,7 @@
                         <option value="الفيزياء">الفيزياء</option>
                         <option value="الأحياء">الأحياء</option>
                         <option value="الإسلامية">الإسلامية</option>
+                        <option value="الحاسوب">الحاسوب</option>
                         <option value="جرائم حزب البعث">جرائم حزب البعث</option>
                     </select>
                 </div>
@@ -2350,6 +2371,7 @@
                         <option value="الفيزياء">الفيزياء</option>
                         <option value="الأحياء">الأحياء</option>
                         <option value="الإسلامية">الإسلامية</option>
+                        <option value="الحاسوب">الحاسوب</option>
                         <option value="جرائم حزب البعث">جرائم حزب البعث</option>
                     </select>
                     <input type="text" id="newCodeInput" placeholder="أدخل الكود الجديد">
@@ -2444,10 +2466,10 @@
 
     <!-- تذييل الصفحة -->
     <footer class="container" id="mainFooter" style="display: none;">
-        <p>© 2023 نظام إدارة درجات الطلاب - إعدادية المجر الكبير للبنين. جميع الحقوق محفوظة.</p>
+        <p>© 2024 نظام إدارة درجات الطلاب - إعدادية المجر الكبير للبنين. جميع الحقوق محفوظة.</p>
         <div class="footer-info">
-            <p>مدير المدرسة: د.مازن عبد الزهرة رزيج</p>
-            <p>مطور البرنامج: الاستاذ محمد عبد الزهره</p>
+            <p>مدير المدرسة: د.مازن عبد الزهره</p>
+            <p>مطور النظام: الاستاذ محمد عبد الزهره</p>
         </div>
     </footer>
 
@@ -2490,11 +2512,11 @@
         // تعديلات محلية مؤقتة
         let localChanges = new Map();
         
-        // قائمة بالمواد الدراسية لكل صف
+        // قائمة بالمواد الدراسية لكل صف مع إضافة مادة الحاسوب
         const subjectsByClass = {
-            4: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "جرائم حزب البعث"],
-            5: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء"],
-            6: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء"]
+            4: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب", "جرائم حزب البعث"],
+            5: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب"],
+            6: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب"]
         };
         
         // الطالب الحالي المعروض
@@ -2506,7 +2528,7 @@
         // كود المدير الثابت
         const ADMIN_CODE = "ADMIN1234";
         
-        // الأكواد الافتراضية للمواد
+        // الأكواد الافتراضية للمواد مع إضافة مادة الحاسوب
         const DEFAULT_CODES = {
             admin: ADMIN_CODE,
             subjects: {
@@ -2517,6 +2539,7 @@
                 "الفيزياء": "PHYS2024",
                 "الأحياء": "BIO2024",
                 "الإسلامية": "ISLAM2024",
+                "الحاسوب": "COMP2024",
                 "جرائم حزب البعث": "BAATH2024"
             }
         };
@@ -2688,7 +2711,7 @@
                 return {
                     type: 'admin',
                     role: 'مدير النظام',
-                    name: 'مدير المدرسة',
+                    name: 'مدير المدرسة د.مازن عبد الزهره',
                     subject: null
                 };
             }
@@ -2735,28 +2758,26 @@
                 document.getElementById('mainFooter').style.display = 'block';
                 
                 // تحديث معلومات المستخدم
-                document.getElementById('currentUserRole').textContent = user.role;
+                document.getElementById('currentUserRole').textContent = user.type === 'admin' ? 'مدير المدرسة' : user.role;
                 document.getElementById('currentUserName').textContent = user.name;
                 document.getElementById('userRoleText').textContent = user.role;
                 
                 // التحكم في إظهار زر إدارة الأكواد والإشعارات (للمدير فقط)
                 if (user.type === 'admin') {
                     document.getElementById('manageCodesBtn').style.display = 'flex';
-                    document.getElementById('viewNotificationsBtn').style.display = 'flex';
                     document.getElementById('notificationsHeaderBtn').style.display = 'flex';
                     updateNotificationBadge();
                 } else {
                     document.getElementById('manageCodesBtn').style.display = 'none';
-                    document.getElementById('viewNotificationsBtn').style.display = 'none';
                     document.getElementById('notificationsHeaderBtn').style.display = 'none';
                 }
                 
-                showNotification('success', `مرحباً ${user.role}`);
+                showNotification('success', `مرحباً ${user.name}`);
                 
                 // تحميل البيانات
                 initializeApp();
             } else {
-                showNotification('error', 'كود الدخول غير صحيح');
+                showNotification('error', 'الكود خطأ، تواصل مع الإدارة');
                 document.getElementById('loginCode').value = '';
                 document.getElementById('loginCode').focus();
             }
@@ -3262,7 +3283,7 @@
             
             // إضافة إشعار
             addNotification(
-                'مدير النظام',
+                'مدير المدرسة د.مازن عبد الزهره',
                 'إدارة الأكواد',
                 'النظام',
                 'update',
@@ -3300,7 +3321,7 @@
                     
                     // إضافة إشعار لكل مادة
                     addNotification(
-                        'مدير النظام',
+                        'مدير المدرسة د.مازن عبد الزهره',
                         'إدارة الأكواد',
                         'النظام',
                         'update',
@@ -4744,7 +4765,7 @@
             }
         }
         
-        // حفظ درجات الطالب - الإصدار المعدل
+        // حفظ درجات الطالب
         async function saveStudentGrades(studentId) {
             // التحقق من الصلاحيات
             if (currentUser.type === 'teacher') {
@@ -4808,14 +4829,14 @@
                 const final = convertArabicToEnglishNumber(row.querySelector('.second-final').value);
                 const finalAverage = convertArabicToEnglishNumber(row.querySelector('.final-average-input').value);
                 
-                // تسجيل التغييرات - فقط إذا كان هناك تغيير حقيقي
-                const oldMonth1First = student.grades[subject].firstTerm.month1 || '';
-                const oldMonth2First = student.grades[subject].firstTerm.month2 || '';
-                const oldMidterm = student.grades[subject].firstTerm.midterm || '';
-                const oldMonth1Second = student.grades[subject].secondTerm.month1 || '';
-                const oldMonth2Second = student.grades[subject].secondTerm.month2 || '';
-                const oldFinal = student.grades[subject].secondTerm.final || '';
-                const oldFinalAverage = student.grades[subject].finalAverage || '';
+                // تسجيل التغييرات
+                const oldMonth1First = student.grades[subject].firstTerm.month1;
+                const oldMonth2First = student.grades[subject].firstTerm.month2;
+                const oldMidterm = student.grades[subject].firstTerm.midterm;
+                const oldMonth1Second = student.grades[subject].secondTerm.month1;
+                const oldMonth2Second = student.grades[subject].secondTerm.month2;
+                const oldFinal = student.grades[subject].secondTerm.final;
+                const oldFinalAverage = student.grades[subject].finalAverage;
                 
                 const newMonth1First = month1First || '';
                 const newMonth2First = month2First || '';
@@ -4825,50 +4846,37 @@
                 const newFinal = final || '';
                 const newFinalAverage = finalAverage || '';
                 
-                // التحقق إذا كان هناك تغيير فعلي في هذه المادة
-                const hasChanged = 
-                    oldMonth1First !== newMonth1First || 
-                    oldMonth2First !== newMonth2First || 
-                    oldMidterm !== newMidterm || 
-                    oldMonth1Second !== newMonth1Second || 
-                    oldMonth2Second !== newMonth2Second || 
-                    oldFinal !== newFinal || 
-                    oldFinalAverage !== newFinalAverage;
-                
-                if (hasChanged) {
+                // التحقق إذا كان هناك تغيير
+                if (oldMonth1First !== newMonth1First || oldMonth2First !== newMonth2First || 
+                    oldMidterm !== newMidterm || oldMonth1Second !== newMonth1Second || 
+                    oldMonth2Second !== newMonth2Second || oldFinal !== newFinal || 
+                    oldFinalAverage !== newFinalAverage) {
+                    
                     changesMade = true;
+                    changedSubjects.push(subject);
                     
-                    // فقط إذا كان المدرس يغير مادته، أو المدير يغير أي مادة
-                    const canChange = currentUser.type === 'admin' || 
-                                     (currentUser.type === 'teacher' && currentUser.subject === subject);
+                    // تسجيل تفاصيل التغيير
+                    let changeDetails = [];
+                    if (oldMonth1First !== newMonth1First) changeDetails.push(`الشهر1 الفصل1: ${oldMonth1First || 'فارغ'} → ${newMonth1First || 'فارغ'}`);
+                    if (oldMonth2First !== newMonth2First) changeDetails.push(`الشهر2 الفصل1: ${oldMonth2First || 'فارغ'} → ${newMonth2First || 'فارغ'}`);
+                    if (oldMidterm !== newMidterm) changeDetails.push(`نصف السنة: ${oldMidterm || 'فارغ'} → ${newMidterm || 'فارغ'}`);
+                    if (oldMonth1Second !== newMonth1Second) changeDetails.push(`الشهر1 الفصل2: ${oldMonth1Second || 'فارغ'} → ${newMonth1Second || 'فارغ'}`);
+                    if (oldMonth2Second !== newMonth2Second) changeDetails.push(`الشهر2 الفصل2: ${oldMonth2Second || 'فارغ'} → ${newMonth2Second || 'فارغ'}`);
+                    if (oldFinal !== newFinal) changeDetails.push(`نهاية السنة: ${oldFinal || 'فارغ'} → ${newFinal || 'فارغ'}`);
+                    if (oldFinalAverage !== newFinalAverage) changeDetails.push(`المعدل النهائي: ${oldFinalAverage || 'فارغ'} → ${newFinalAverage || 'فارغ'}`);
                     
-                    if (canChange) {
-                        changedSubjects.push(subject);
-                        
-                        // تسجيل تفاصيل التغيير
-                        let changeDetails = [];
-                        if (oldMonth1First !== newMonth1First) changeDetails.push(`الشهر1 الفصل1: ${oldMonth1First || 'فارغ'} → ${newMonth1First || 'فارغ'}`);
-                        if (oldMonth2First !== newMonth2First) changeDetails.push(`الشهر2 الفصل1: ${oldMonth2First || 'فارغ'} → ${newMonth2First || 'فارغ'}`);
-                        if (oldMidterm !== newMidterm) changeDetails.push(`نصف السنة: ${oldMidterm || 'فارغ'} → ${newMidterm || 'فارغ'}`);
-                        if (oldMonth1Second !== newMonth1Second) changeDetails.push(`الشهر1 الفصل2: ${oldMonth1Second || 'فارغ'} → ${newMonth1Second || 'فارغ'}`);
-                        if (oldMonth2Second !== newMonth2Second) changeDetails.push(`الشهر2 الفصل2: ${oldMonth2Second || 'فارغ'} → ${newMonth2Second || 'فارغ'}`);
-                        if (oldFinal !== newFinal) changeDetails.push(`نهاية السنة: ${oldFinal || 'فارغ'} → ${newFinal || 'فارغ'}`);
-                        if (oldFinalAverage !== newFinalAverage) changeDetails.push(`المعدل النهائي: ${oldFinalAverage || 'فارغ'} → ${newFinalAverage || 'فارغ'}`);
-                        
-                        // إضافة إشعار للمدير - لكل مادة تم تغييرها
-                        addNotification(
-                            currentUser.name,
-                            currentUser.subject || currentUser.role,
-                            student.name,
-                            'update',
-                            `درجات سابقة في ${subject}`,
-                            `درجات جديدة في ${subject}`,
-                            `تغيير درجات ${student.name} في ${subject}: ${changeDetails.join(', ')}`
-                        );
-                    }
+                    // إضافة إشعار للمدير
+                    addNotification(
+                        currentUser.name,
+                        currentUser.subject || currentUser.role,
+                        student.name,
+                        'update',
+                        `درجات سابقة في ${subject}`,
+                        `درجات جديدة في ${subject}`,
+                        `تغيير درجات ${student.name} في ${subject}: ${changeDetails.join(', ')}`
+                    );
                 }
                 
-                // تحديث القيم في كل الأحوال (لكن الإشعار فقط للمادة التي تم تغييرها)
                 student.grades[subject].firstTerm.month1 = newMonth1First;
                 student.grades[subject].firstTerm.month2 = newMonth2First;
                 student.grades[subject].firstTerm.midterm = newMidterm;
@@ -4975,6 +4983,9 @@
             // الإشعارات في الهيدر
             document.getElementById('notificationsHeaderBtn').addEventListener('click', openNotificationsModal);
             
+            // تسجيل الخروج من الهيدر
+            document.getElementById('logoutHeaderBtn').addEventListener('click', logout);
+            
             // إدارة الأكواد
             document.getElementById('manageCodesBtn').addEventListener('click', function() {
                 if (currentUser && currentUser.type === 'admin') {
@@ -4989,9 +5000,6 @@
             document.getElementById('closeManageCodesBtn').addEventListener('click', function() {
                 document.getElementById('manageCodesModal').classList.remove('show');
             });
-            
-            // عرض الإشعارات
-            document.getElementById('viewNotificationsBtn').addEventListener('click', openNotificationsModal);
             
             // تصفية الإشعارات
             document.getElementById('filterNotificationsBtn').addEventListener('click', function() {
@@ -5165,7 +5173,7 @@
                 document.getElementById('deleteAllModal').classList.remove('show');
             });
             
-            // تسجيل الخروج
+            // تسجيل الخروج من شريط المستخدم
             document.querySelector('.user-info').addEventListener('click', logout);
         }
         
