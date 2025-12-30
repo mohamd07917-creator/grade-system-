@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
-        /* كل الأنماط تبقى كما هي */
+        /* كل الأنماط تبقى كما هي مع تعديلات طفيفة */
         * {
             margin: 0;
             padding: 0;
@@ -307,14 +307,36 @@
             font-weight: bold;
         }
 
-        .developer-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
+        /* تعديل موقع معلومات المطور والمدير */
+        .admin-developer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
             background-color: rgba(255, 255, 255, 0.15);
-            padding: 5px 15px;
+            padding: 8px 15px;
             border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .admin-developer-info i {
+            font-size: 1rem;
+        }
+
+        .admin-developer-info span {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .admin-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .developer-name {
             font-size: 0.8rem;
+            opacity: 0.9;
         }
 
         /* أيقونة تسجيل الخروج */
@@ -647,6 +669,16 @@
             color: #cc6600;
         }
 
+        .enrollment-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
         /* قسم عرض درجات الطالب */
         .grades-section {
             background-color: var(--white);
@@ -717,7 +749,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 30px;
-            min-width: 800px;
+            min-width: 1000px;
         }
 
         .grades-table th {
@@ -1754,7 +1786,7 @@
                 text-align: center;
             }
             
-            .developer-info {
+            .admin-developer-info {
                 position: relative;
                 top: 0;
                 left: 0;
@@ -1855,10 +1887,7 @@
             </div>
             
             <div class="login-info">
-                <p><i class="fas fa-info-circle"></i> أدخل كود المادة للدخول كمدرس، أو كود المدير للصلاحيات الكاملة</p>
-                <p style="margin-top: 10px; font-size: 0.8rem; color: #888;">
-                    كود المدير: ADMIN1234 (للتجربة فقط)
-                </p>
+                <p><i class="fas fa-info-circle"></i> أدخل كود المدرس للدخول، أو كود المدير للصلاحيات الكاملة</p>
             </div>
         </div>
     </div>
@@ -1895,16 +1924,19 @@
     <!-- رأس الصفحة -->
     <header id="mainHeader" style="display: none;">
         <div class="container">
-            <div class="developer-info">
-                <i class="fas fa-code"></i>
-                <span>مطور النظام: الاستاذ محمد عبد الزهره</span>
-            </div>
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-graduation-cap"></i>
                     <div>
                         <h1>نظام إدارة درجات الطلاب</h1>
                         <p>إعدادية المجر الكبير للبنين - الصفوف العلمية (الرابع، الخامس، السادس)</p>
+                        <div class="admin-developer-info">
+                            <i class="fas fa-user-tie"></i>
+                            <span>
+                                <div class="admin-name">مدير المدرسة د.مازن عبد الزهره</div>
+                                <div class="developer-name">مطور النظام: الاستاذ محمد</div>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div class="header-controls">
@@ -2022,12 +2054,23 @@
             
             <div class="class-filters">
                 <div>
+                    <label for="filterType">نوع الطالب:</label>
+                    <select id="filterType">
+                        <option value="all">جميع الأنواع</option>
+                        <option value="regular">نظامي</option>
+                        <option value="enrollment">انتساب</option>
+                    </select>
+                </div>
+                <div>
                     <label for="filterClass">اختر الصف:</label>
                     <select id="filterClass">
                         <option value="all">جميع الصفوف</option>
                         <option value="4">الصف الرابع العلمي</option>
+                        <option value="4enrollment">انتساب الرابع العلمي</option>
                         <option value="5">الصف الخامس العلمي</option>
+                        <option value="5enrollment">انتساب الخامس العلمي</option>
                         <option value="6">الصف السادس العلمي</option>
+                        <option value="6enrollment">انتساب السادس العلمي</option>
                     </select>
                 </div>
                 <div>
@@ -2040,6 +2083,11 @@
                         <option value="د">د</option>
                         <option value="ه">ه</option>
                         <option value="و">و</option>
+                        <option value="أ انتساب">أ انتساب</option>
+                        <option value="ب انتساب">ب انتساب</option>
+                        <option value="ج انتساب">ج انتساب</option>
+                        <option value="د انتساب">د انتساب</option>
+                        <option value="ه انتساب">ه انتساب</option>
                     </select>
                 </div>
             </div>
@@ -2049,6 +2097,7 @@
                     <thead>
                         <tr>
                             <th>الاسم</th>
+                            <th>النوع</th>
                             <th>الصف</th>
                             <th>الشعبة</th>
                             <th>رقم هاتف ولي الأمر</th>
@@ -2085,14 +2134,28 @@
             <form id="bulkImportForm">
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="bulkType">نوع الطلاب</label>
+                        <select id="bulkType" required>
+                            <option value="">اختر النوع</option>
+                            <option value="regular">نظامي</option>
+                            <option value="enrollment">انتساب</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="bulkClass">الصف</label>
                         <select id="bulkClass" required>
                             <option value="">اختر الصف</option>
                             <option value="4">الرابع العلمي</option>
+                            <option value="4enrollment">انتساب الرابع العلمي</option>
                             <option value="5">الخامس العلمي</option>
+                            <option value="5enrollment">انتساب الخامس العلمي</option>
                             <option value="6">السادس العلمي</option>
+                            <option value="6enrollment">انتساب السادس العلمي</option>
                         </select>
                     </div>
+                </div>
+                
+                <div class="form-row">
                     <div class="form-group">
                         <label for="bulkDivision">الشعبة</label>
                         <select id="bulkDivision" required>
@@ -2103,6 +2166,11 @@
                             <option value="د">د</option>
                             <option value="ه">ه</option>
                             <option value="و">و</option>
+                            <option value="أ انتساب">أ انتساب</option>
+                            <option value="ب انتساب">ب انتساب</option>
+                            <option value="ج انتساب">ج انتساب</option>
+                            <option value="د انتساب">د انتساب</option>
+                            <option value="ه انتساب">ه انتساب</option>
                         </select>
                     </div>
                 </div>
@@ -2176,17 +2244,28 @@
                         <input type="text" id="studentNameInput" required>
                     </div>
                     <div class="form-group">
-                        <label for="studentClassInput">الصف</label>
-                        <select id="studentClassInput" required>
-                            <option value="">اختر الصف</option>
-                            <option value="4">الرابع العلمي</option>
-                            <option value="5">الخامس العلمي</option>
-                            <option value="6">السادس العلمي</option>
+                        <label for="studentTypeInput">نوع الطالب</label>
+                        <select id="studentTypeInput" required>
+                            <option value="">اختر النوع</option>
+                            <option value="regular">نظامي</option>
+                            <option value="enrollment">انتساب</option>
                         </select>
                     </div>
                 </div>
                 
                 <div class="form-row">
+                    <div class="form-group">
+                        <label for="studentClassInput">الصف</label>
+                        <select id="studentClassInput" required>
+                            <option value="">اختر الصف</option>
+                            <option value="4">الرابع العلمي</option>
+                            <option value="4enrollment">انتساب الرابع العلمي</option>
+                            <option value="5">الخامس العلمي</option>
+                            <option value="5enrollment">انتساب الخامس العلمي</option>
+                            <option value="6">السادس العلمي</option>
+                            <option value="6enrollment">انتساب السادس العلمي</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="studentDivisionInput">الشعبة</label>
                         <select id="studentDivisionInput" required>
@@ -2197,8 +2276,16 @@
                             <option value="د">د</option>
                             <option value="ه">ه</option>
                             <option value="و">و</option>
+                            <option value="أ انتساب">أ انتساب</option>
+                            <option value="ب انتساب">ب انتساب</option>
+                            <option value="ج انتساب">ج انتساب</option>
+                            <option value="د انتساب">د انتساب</option>
+                            <option value="ه انتساب">ه انتساب</option>
                         </select>
                     </div>
+                </div>
+                
+                <div class="form-row">
                     <div class="form-group">
                         <label for="parentPhoneInput">رقم هاتف ولي الأمر</label>
                         <input type="tel" id="parentPhoneInput" placeholder="مثال: 07701234567" required>
@@ -2292,6 +2379,8 @@
                         <option value="الإسلامية">الإسلامية</option>
                         <option value="الحاسوب">الحاسوب</option>
                         <option value="جرائم حزب البعث">جرائم حزب البعث</option>
+                        <option value="الرياضة">الرياضة</option>
+                        <option value="الفنية">الفنية</option>
                     </select>
                 </div>
                 <div>
@@ -2360,19 +2449,11 @@
             </div>
             
             <div class="change-code-section">
-                <h4><i class="fas fa-edit"></i> تغيير كود مادة محددة:</h4>
+                <h4><i class="fas fa-edit"></i> تغيير كود مدرس محدد:</h4>
                 <div class="code-input-group">
-                    <select id="changeSubjectSelect">
-                        <option value="">اختر المادة</option>
-                        <option value="الرياضيات">الرياضيات</option>
-                        <option value="اللغة العربية">اللغة العربية</option>
-                        <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
-                        <option value="الكيمياء">الكيمياء</option>
-                        <option value="الفيزياء">الفيزياء</option>
-                        <option value="الأحياء">الأحياء</option>
-                        <option value="الإسلامية">الإسلامية</option>
-                        <option value="الحاسوب">الحاسوب</option>
-                        <option value="جرائم حزب البعث">جرائم حزب البعث</option>
+                    <select id="changeTeacherSelect">
+                        <option value="">اختر المدرس</option>
+                        <!-- سيتم ملء المدرسين هنا ديناميكيًا -->
                     </select>
                     <input type="text" id="newCodeInput" placeholder="أدخل الكود الجديد">
                 </div>
@@ -2383,7 +2464,7 @@
             
             <div class="change-code-section">
                 <h4><i class="fas fa-redo"></i> إعادة تعيين جميع الأكواد:</h4>
-                <p style="color: #666; margin-bottom: 15px;">سيتم إنشاء أكواد عشوائية جديدة لجميع المواد</p>
+                <p style="color: #666; margin-bottom: 15px;">سيتم إنشاء أكواد عشوائية جديدة لجميع المدرسين</p>
                 <button class="btn btn-danger" id="resetAllCodesBtn">
                     <i class="fas fa-redo"></i> إعادة تعيين جميع الأكواد
                 </button>
@@ -2512,11 +2593,15 @@
         // تعديلات محلية مؤقتة
         let localChanges = new Map();
         
-        // قائمة بالمواد الدراسية لكل صف مع إضافة مادة الحاسوب
+        // قائمة بالمواد الدراسية لكل صف مع إضافة مادة الحاسوب والرياضة والفنية
         const subjectsByClass = {
-            4: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب", "جرائم حزب البعث"],
-            5: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب"],
-            6: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب"]
+            4: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب", "جرائم حزب البعث", "الرياضة", "الفنية"],
+            5: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب", "الرياضة", "الفنية"],
+            6: ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب", "الرياضة", "الفنية"],
+            // نفس المواد لطلاب الانتساب
+            "4enrollment": ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب", "جرائم حزب البعث", "الرياضة", "الفنية"],
+            "5enrollment": ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب", "الرياضة", "الفنية"],
+            "6enrollment": ["الإسلامية", "اللغة العربية", "اللغة الإنجليزية", "الرياضيات", "الكيمياء", "الفيزياء", "الأحياء", "الحاسوب", "الرياضة", "الفنية"]
         };
         
         // الطالب الحالي المعروض
@@ -2528,19 +2613,332 @@
         // كود المدير الثابت
         const ADMIN_CODE = "ADMIN1234";
         
-        // الأكواد الافتراضية للمواد مع إضافة مادة الحاسوب
-        const DEFAULT_CODES = {
-            admin: ADMIN_CODE,
-            subjects: {
-                "الرياضيات": "MATH2024",
-                "اللغة العربية": "ARABIC2024",
-                "اللغة الإنجليزية": "ENGL2024",
-                "الكيمياء": "CHEM2024",
-                "الفيزياء": "PHYS2024",
-                "الأحياء": "BIO2024",
-                "الإسلامية": "ISLAM2024",
-                "الحاسوب": "COMP2024",
-                "جرائم حزب البعث": "BAATH2024"
+        // تعريف المدرسين مع أكوادهم الخاصة حسب القائمة المرفوعة
+        const TEACHERS = {
+            // المدير
+            "ADMIN1234": {
+                name: "مدير المدرسة د.مازن عبد الزهره",
+                role: "مدير النظام",
+                type: "admin",
+                subject: null,
+                allowedClasses: ["4", "5", "6", "4enrollment", "5enrollment", "6enrollment"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و", "أ انتساب", "ب انتساب", "ج انتساب", "د انتساب", "ه انتساب"]
+            },
+            
+            // المدرسين الآخرين (نفس القائمة السابقة مع تعديل الصلاحيات)
+            "MZN001": {
+                name: "مازن فالح",
+                role: "مدرس جرائم حزب البعث",
+                type: "teacher",
+                subject: "جرائم حزب البعث",
+                allowedClasses: ["4"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه"]
+            },
+            
+            "GHS001": {
+                name: "غسان حسن",
+                role: "مدرس الاسلامية",
+                type: "teacher",
+                subject: "الإسلامية",
+                allowedClasses: ["6"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "MHD001": {
+                name: "محمد علي",
+                role: "مدرس الفيزياء",
+                type: "teacher",
+                subject: "الفيزياء",
+                allowedClasses: ["4"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "HSN001": {
+                name: "حسن اعذافة",
+                role: "مدرس الاسلامية",
+                type: "teacher",
+                subject: "الإسلامية",
+                allowedClasses: ["4", "5"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه"]
+            },
+            
+            "GFR001": {
+                name: "غفران محمد",
+                role: "مدرس اللغة العربية",
+                type: "teacher",
+                subject: "اللغة العربية",
+                allowedClasses: ["6"],
+                allowedDivisions: ["ج", "د", "ه", "و"]
+            },
+            
+            "MJD001": {
+                name: "ماجد چاسب",
+                role: "مدرس اللغة العربية",
+                type: "teacher",
+                subject: "اللغة العربية",
+                allowedClasses: ["4", "6"],
+                allowedDivisions: ["ه", "أ", "ب"]
+            },
+            
+            "BSM001": {
+                name: "بسام علي",
+                role: "مدرس اللغة العربية",
+                type: "teacher",
+                subject: "اللغة العربية",
+                allowedClasses: ["4"],
+                allowedDivisions: ["أ", "ب", "ج"]
+            },
+            
+            "AHD001": {
+                name: "احمد عطيه",
+                role: "مدرس اللغة العربية",
+                type: "teacher",
+                subject: "اللغة العربية",
+                allowedClasses: ["5"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "MST001": {
+                name: "مصطفى فرحان",
+                role: "مدرس اللغة العربية",
+                type: "teacher",
+                subject: "اللغة العربية",
+                allowedClasses: ["4"],
+                allowedDivisions: ["ه"]
+            },
+            
+            "HSN002": {
+                name: "حسن چويچ",
+                role: "مدرس اللغة الإنجليزية",
+                type: "teacher",
+                subject: "اللغة الإنجليزية",
+                allowedClasses: ["5"],
+                allowedDivisions: ["أ", "ب"]
+            },
+            
+            "FRS001": {
+                name: "فراس فوزي",
+                role: "مدرس اللغة الإنجليزية",
+                type: "teacher",
+                subject: "اللغة الإنجليزية",
+                allowedClasses: ["6"],
+                allowedDivisions: ["أ", "ب"]
+            },
+            
+            "MHD002": {
+                name: "محمد علي",
+                role: "مدرس اللغة الإنجليزية",
+                type: "teacher",
+                subject: "اللغة الإنجليزية",
+                allowedClasses: ["6"],
+                allowedDivisions: ["ج", "د", "ه", "و"]
+            },
+            
+            "SJD001": {
+                name: "سجاد محمد",
+                role: "مدرس اللغة الإنجليزية",
+                type: "teacher",
+                subject: "اللغة الإنجليزية",
+                allowedClasses: ["4"],
+                allowedDivisions: ["ج", "د", "ه"]
+            },
+            
+            "MHD003": {
+                name: "محمد عبد الزهره",
+                role: "مدرس اللغة الإنجليزية",
+                type: "teacher",
+                subject: "اللغة الإنجليزية",
+                allowedClasses: ["4"],
+                allowedDivisions: ["أ"]
+            },
+            
+            "MHD004": {
+                name: "محمد حسين محسن",
+                role: "مدرس اللغة الإنجليزية",
+                type: "teacher",
+                subject: "اللغة الإنجليزية",
+                allowedClasses: ["5"],
+                allowedDivisions: ["ج", "د"]
+            },
+            
+            "MHD005": {
+                name: "محمد كريدي",
+                role: "مدرس اللغة الإنجليزية",
+                type: "teacher",
+                subject: "اللغة الإنجليزية",
+                allowedClasses: ["4"],
+                allowedDivisions: ["ب"]
+            },
+            
+            "ALI001": {
+                name: "علي عريبي",
+                role: "مدرس الرياضيات",
+                type: "teacher",
+                subject: "الرياضيات",
+                allowedClasses: ["6"],
+                allowedDivisions: ["أ", "ب"]
+            },
+            
+            "MRT001": {
+                name: "مرتضى شواي",
+                role: "مدرس الرياضيات",
+                type: "teacher",
+                subject: "الرياضيات",
+                allowedClasses: ["6"],
+                allowedDivisions: ["ج", "د", "ه", "و"]
+            },
+            
+            "MST002": {
+                name: "مصطفى خصير",
+                role: "مدرس الرياضيات",
+                type: "teacher",
+                subject: "الرياضيات",
+                allowedClasses: ["4", "5"],
+                allowedDivisions: ["أ", "ه"]
+            },
+            
+            "ABS001": {
+                name: "عباس فاضل",
+                role: "مدرس الرياضيات",
+                type: "teacher",
+                subject: "الرياضيات",
+                allowedClasses: ["5"],
+                allowedDivisions: ["ب", "ج", "د"]
+            },
+            
+            "MKD001": {
+                name: "مقداد محمد",
+                role: "مدرس الرياضيات",
+                type: "teacher",
+                subject: "الرياضيات",
+                allowedClasses: ["4"],
+                allowedDivisions: ["ب", "ج", "د"]
+            },
+            
+            "ALI002": {
+                name: "علي فيصل",
+                role: "مدرس الكيمياء",
+                type: "teacher",
+                subject: "الكيمياء",
+                allowedClasses: ["6"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "ALI003": {
+                name: "علي سيد خلف",
+                role: "مدرس الكيمياء",
+                type: "teacher",
+                subject: "الكيمياء",
+                allowedClasses: ["4", "5", "6"],
+                allowedDivisions: ["أ", "أ", "ب", "ج", "د", "ه", "و"]
+            },
+            
+            "MHD006": {
+                name: "محمد حسين گطامي",
+                role: "مدرس الكيمياء",
+                type: "teacher",
+                subject: "الكيمياء",
+                allowedClasses: ["4"],
+                allowedDivisions: ["ب", "ج", "د", "ه"]
+            },
+            
+            "MNT001": {
+                name: "منتظر عبد الرضا",
+                role: "مدرس الفيزياء",
+                type: "teacher",
+                subject: "الفيزياء",
+                allowedClasses: ["5", "6"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و"]
+            },
+            
+            "MZN002": {
+                name: "مازن كريم",
+                role: "مدرس الفيزياء",
+                type: "teacher",
+                subject: "الفيزياء",
+                allowedClasses: ["6"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "MJD002": {
+                name: "ماجد جبار",
+                role: "مدرس الأحياء",
+                type: "teacher",
+                subject: "الأحياء",
+                allowedClasses: ["5", "6"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و"]
+            },
+            
+            "DYA001": {
+                name: "ضياء لازم",
+                role: "مدرس الأحياء",
+                type: "teacher",
+                subject: "الأحياء",
+                allowedClasses: ["6"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "ALI004": {
+                name: "علي حسين",
+                role: "مدرس الأحياء",
+                type: "teacher",
+                subject: "الأحياء",
+                allowedClasses: ["4"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "MTH001": {
+                name: "مثنى احمد",
+                role: "مدرس الحاسوب",
+                type: "teacher",
+                subject: "الحاسوب",
+                allowedClasses: ["5"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "ALI005": {
+                name: "علي صبري",
+                role: "مدرس الحاسوب",
+                type: "teacher",
+                subject: "الحاسوب",
+                allowedClasses: ["4"],
+                allowedDivisions: ["أ", "ب", "ج", "د"]
+            },
+            
+            "HRT001": {
+                name: "حارث حمزة",
+                role: "مدرس الرياضة",
+                type: "teacher",
+                subject: "الرياضة",
+                allowedClasses: ["4", "5", "6"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و"]
+            },
+            
+            "IHS001": {
+                name: "احسان علي",
+                role: "مدرس الفنية",
+                type: "teacher",
+                subject: "الفنية",
+                allowedClasses: ["4", "5", "6"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و"]
+            },
+            
+            "JWD001": {
+                name: "جواد حسين",
+                role: "مرشد تربوي",
+                type: "viewer",
+                subject: null,
+                allowedClasses: ["4", "5", "6"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و"]
+            },
+            
+            "HMZ001": {
+                name: "حمزة احمد",
+                role: "مرشد تربوي",
+                type: "viewer",
+                subject: null,
+                allowedClasses: ["4", "5", "6"],
+                allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و"]
             }
         };
         
@@ -2554,19 +2952,23 @@
             LAST_SYNC: 'last_sync_time',
             LOCAL_CHANGES: 'local_changes',
             APP_VERSION: 'app_version',
-            ACCESS_CODES: 'access_codes',
-            CODE_CHANGE_LOG: 'code_change_log',
+            TEACHERS: 'teachers_data',
             NOTIFICATIONS: 'notifications_data',
             LAST_NOTIFICATION_CHECK: 'last_notification_check'
         };
         
         // إصدار التطبيق
-        const APP_VERSION = '7.1';
+        const APP_VERSION = '10.0';
         
         // ========== نظام الإشعارات والتغييرات ==========
         let notifications = [];
         let unreadNotificationsCount = 0;
         let lastNotificationCheck = null;
+        
+        // ========== التعديلات الجديدة ==========
+        
+        // متغير لتتبع ما إذا كان المستخدم يستخدم متصفح هاتف
+        let isMobileBrowser = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         // ========== نظام التخزين المحلي الذكي ==========
         
@@ -2590,10 +2992,8 @@
                 // حفظ إصدار التطبيق
                 localStorage.setItem(STORAGE_KEYS.APP_VERSION, APP_VERSION);
                 
-                // حفظ الأكواد
-                if (currentUser && currentUser.type === 'admin') {
-                    localStorage.setItem(STORAGE_KEYS.ACCESS_CODES, JSON.stringify(DEFAULT_CODES));
-                }
+                // حفظ المدرسين
+                localStorage.setItem(STORAGE_KEYS.TEACHERS, JSON.stringify(TEACHERS));
                 
                 // حفظ الإشعارات
                 localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
@@ -2712,20 +3112,25 @@
                     type: 'admin',
                     role: 'مدير النظام',
                     name: 'مدير المدرسة د.مازن عبد الزهره',
-                    subject: null
+                    subject: null,
+                    allowedClasses: ["4", "5", "6", "4enrollment", "5enrollment", "6enrollment"],
+                    allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و", "أ انتساب", "ب انتساب", "ج انتساب", "د انتساب", "ه انتساب"],
+                    isViewer: false
                 };
             }
             
             // التحقق من أكواد المدرسين
-            for (const [subject, subjectCode] of Object.entries(DEFAULT_CODES.subjects)) {
-                if (upperCode === subjectCode) {
-                    return {
-                        type: 'teacher',
-                        role: `مدرس ${subject}`,
-                        name: `مدرس ${subject}`,
-                        subject: subject
-                    };
-                }
+            if (TEACHERS[upperCode]) {
+                const teacher = TEACHERS[upperCode];
+                return {
+                    type: teacher.type,
+                    role: teacher.role,
+                    name: teacher.name,
+                    subject: teacher.subject,
+                    allowedClasses: teacher.allowedClasses,
+                    allowedDivisions: teacher.allowedDivisions,
+                    isViewer: teacher.type === 'viewer'
+                };
             }
             
             return null;
@@ -2762,14 +3167,34 @@
                 document.getElementById('currentUserName').textContent = user.name;
                 document.getElementById('userRoleText').textContent = user.role;
                 
-                // التحكم في إظهار زر إدارة الأكواد والإشعارات (للمدير فقط)
+                // التحكم في إظهار الأزرار حسب الصلاحيات
                 if (user.type === 'admin') {
                     document.getElementById('manageCodesBtn').style.display = 'flex';
                     document.getElementById('notificationsHeaderBtn').style.display = 'flex';
+                    // إظهار جميع أزرار التحكم للمدير
+                    document.getElementById('addStudentBtn').style.display = 'flex';
+                    document.getElementById('bulkImportBtn').style.display = 'flex';
+                    document.getElementById('deleteAllBtn').style.display = 'flex';
+                    document.getElementById('backupBtn').style.display = 'flex';
                     updateNotificationBadge();
-                } else {
+                } else if (user.type === 'teacher') {
                     document.getElementById('manageCodesBtn').style.display = 'none';
                     document.getElementById('notificationsHeaderBtn').style.display = 'none';
+                    // إخفاء أزرار التحكم غير المسموحة للمدرسين
+                    document.getElementById('addStudentBtn').style.display = 'none';
+                    document.getElementById('bulkImportBtn').style.display = 'none';
+                    document.getElementById('deleteAllBtn').style.display = 'none';
+                    document.getElementById('backupBtn').style.display = 'none';
+                } else if (user.type === 'viewer') {
+                    document.getElementById('manageCodesBtn').style.display = 'none';
+                    document.getElementById('notificationsHeaderBtn').style.display = 'none';
+                    // إخفاء جميع أزرار التحكم للمشاهدين
+                    document.getElementById('addStudentBtn').style.display = 'none';
+                    document.getElementById('bulkImportBtn').style.display = 'none';
+                    document.getElementById('deleteAllBtn').style.display = 'none';
+                    document.getElementById('backupBtn').style.display = 'none';
+                    document.getElementById('uploadToServerBtn').style.display = 'none';
+                    document.getElementById('downloadFromServerBtn').style.display = 'none';
                 }
                 
                 showNotification('success', `مرحباً ${user.name}`);
@@ -2825,8 +3250,14 @@
         
         // ========== نظام الإشعارات والتغييرات ==========
         
-        // إضافة إشعار جديد
-        function addNotification(teacherName, teacherSubject, studentName, action, oldValue, newValue, details) {
+        // إضافة إشعار جديد - معدل للعمل مع الهاتف
+        function addNotification(teacherName, teacherSubject, studentName, action, oldValue, newValue, details, subjectChanged = null) {
+            // إذا كان المستخدم يستخدم هاتف وكان مدرس (ليس مدير)، لا نرسل إشعارات
+            if (isMobileBrowser && currentUser && currentUser.type === 'teacher') {
+                console.log("تعديل من هاتف مدرس - لا إشعارات للمدير");
+                return null;
+            }
+            
             const notification = {
                 id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 teacherName: teacherName,
@@ -2836,6 +3267,7 @@
                 oldValue: oldValue,
                 newValue: newValue,
                 details: details,
+                subjectChanged: subjectChanged, // المادة التي تم تغييرها فقط
                 timestamp: new Date().toISOString(),
                 read: false,
                 date: new Date().toLocaleDateString('ar-EG'),
@@ -2877,7 +3309,9 @@
                     actionText = 'تغيير';
             }
             
-            const message = `قام ${notification.teacherName} (${notification.teacherSubject}) ${actionText} للطالب ${notification.studentName}`;
+            // عرض المادة التي تم تغييرها فقط إذا كانت موجودة
+            const subjectInfo = notification.subjectChanged ? ` في مادة ${notification.subjectChanged}` : '';
+            const message = `قام ${notification.teacherName} (${notification.teacherSubject}) ${actionText}${subjectInfo} للطالب ${notification.studentName}`;
             document.getElementById('teacherNotificationText').textContent = message;
             document.getElementById('teacherNotification').classList.add('show');
             
@@ -2948,7 +3382,7 @@
             
             // تطبيق التصفية حسب المادة
             if (filterSubject !== 'all') {
-                filteredNotifications = filteredNotifications.filter(n => n.teacherSubject === filterSubject);
+                filteredNotifications = filteredNotifications.filter(n => n.teacherSubject === filterSubject || n.subjectChanged === filterSubject);
             }
             
             // تطبيق التصفية حسب المدرس
@@ -3020,6 +3454,7 @@
                             <span class="notification-student"> ${notification.studentName}</span>
                         </div>
                         
+                        ${notification.subjectChanged ? `<p style="color: #4169E1; font-weight: bold;">المادة: ${notification.subjectChanged}</p>` : ''}
                         ${notification.details ? `<p style="color: #666; font-size: 0.9rem;">${notification.details}</p>` : ''}
                         
                         <div class="notification-actions">
@@ -3122,9 +3557,9 @@
             
             // إعادة عرض الإشعارات
             const filterSubject = document.getElementById('filterNotificationSubject').value;
-            const filterTeacher = document.getElementById('filterNotificationTeacher').value;
-            const filterStatus = document.getElementById('filterNotificationStatus').value;
-            displayNotifications(filterSubject, filterTeacher, filterStatus);
+                const filterTeacher = document.getElementById('filterNotificationTeacher').value;
+                const filterStatus = document.getElementById('filterNotificationStatus').value;
+                displayNotifications(filterSubject, filterTeacher, filterStatus);
             
             showNotification('success', `تم تعيين ${updatedCount} إشعار كمقروء`);
         }
@@ -3197,7 +3632,10 @@
             }
             
             const codesList = document.getElementById('currentCodesList');
+            const teacherSelect = document.getElementById('changeTeacherSelect');
+            
             let html = '';
+            let teacherOptions = '<option value="">اختر المدرس</option>';
             
             // عرض كود المدير
             html += `
@@ -3210,20 +3648,41 @@
                 </div>
             `;
             
+            teacherOptions += `<option value="${ADMIN_CODE}">👑 المدير</option>`;
+            
             // عرض أكواد المدرسين
-            for (const [subject, code] of Object.entries(DEFAULT_CODES.subjects)) {
+            for (const [code, teacher] of Object.entries(TEACHERS)) {
+                if (code === ADMIN_CODE) continue; // تخطي المدير لأنه تم عرضه
+                
+                let teacherInfo = '';
+                if (teacher.type === 'teacher') {
+                    teacherInfo = `${teacher.name} - ${teacher.subject}`;
+                    if (teacher.allowedClasses && teacher.allowedClasses.length > 0) {
+                        teacherInfo += ` (الصفوف: ${teacher.allowedClasses.join(',')}`;
+                        if (teacher.allowedDivisions && teacher.allowedDivisions.length > 0) {
+                            teacherInfo += ` - الشعب: ${teacher.allowedDivisions.join(',')}`;
+                        }
+                        teacherInfo += `)`;
+                    }
+                } else if (teacher.type === 'viewer') {
+                    teacherInfo = `${teacher.name} - ${teacher.role}`;
+                }
+                
                 html += `
                     <div class="code-item">
-                        <span class="subject-name">${subject}:</span>
+                        <span class="subject-name">${teacherInfo}</span>
                         <span class="code-value">${code}</span>
                         <button class="copy-btn" data-code="${code}">
                             <i class="fas fa-copy"></i> نسخ
                         </button>
                     </div>
                 `;
+                
+                teacherOptions += `<option value="${code}">${teacherInfo}</option>`;
             }
             
             codesList.innerHTML = html;
+            teacherSelect.innerHTML = teacherOptions;
             
             // إضافة أحداث النسخ
             document.querySelectorAll('.copy-btn').forEach(btn => {
@@ -3236,18 +3695,18 @@
             });
         }
         
-        // تغيير كود مادة
-        function changeSubjectCode() {
+        // تغيير كود مدرس
+        function changeTeacherCode() {
             if (!currentUser || currentUser.type !== 'admin') {
                 showNotification('error', 'ليس لديك صلاحية لتغيير الأكواد');
                 return;
             }
             
-            const subject = document.getElementById('changeSubjectSelect').value;
+            const teacherCode = document.getElementById('changeTeacherSelect').value;
             const newCode = document.getElementById('newCodeInput').value.trim().toUpperCase();
             
-            if (!subject) {
-                showNotification('error', 'يرجى اختيار المادة');
+            if (!teacherCode) {
+                showNotification('error', 'يرجى اختيار المدرس');
                 return;
             }
             
@@ -3262,24 +3721,20 @@
             }
             
             // التحقق من عدم تكرار الكود
-            if (newCode === ADMIN_CODE) {
-                showNotification('error', 'لا يمكن استخدام كود المدير لمادة');
+            if (TEACHERS[newCode]) {
+                showNotification('error', 'هذا الكود مستخدم بالفعل');
                 return;
             }
             
-            for (const [existingSubject, existingCode] of Object.entries(DEFAULT_CODES.subjects)) {
-                if (existingCode === newCode && existingSubject !== subject) {
-                    showNotification('error', 'هذا الكود مستخدم بالفعل لمادة أخرى');
-                    return;
-                }
-            }
+            // حفظ المدرس القديم
+            const oldTeacher = TEACHERS[teacherCode];
             
-            // تغيير الكود
-            const oldCode = DEFAULT_CODES.subjects[subject];
-            DEFAULT_CODES.subjects[subject] = newCode;
+            // حذف الكود القديم وإضافة الجديد
+            delete TEACHERS[teacherCode];
+            TEACHERS[newCode] = oldTeacher;
             
             // تسجيل التغيير
-            logCodeChange(subject, oldCode, newCode);
+            logCodeChange(oldTeacher.name, teacherCode, newCode);
             
             // إضافة إشعار
             addNotification(
@@ -3287,19 +3742,19 @@
                 'إدارة الأكواد',
                 'النظام',
                 'update',
-                oldCode,
+                teacherCode,
                 newCode,
-                `تم تغيير كود مادة ${subject} من ${oldCode} إلى ${newCode}`
+                `تم تغيير كود ${oldTeacher.name} من ${teacherCode} إلى ${newCode}`
             );
             
             // تحديث العرض
             displayCurrentCodes();
             
             // إعادة تعيين الحقول
-            document.getElementById('changeSubjectSelect').value = '';
+            document.getElementById('changeTeacherSelect').value = '';
             document.getElementById('newCodeInput').value = '';
             
-            showNotification('success', `تم تغيير كود ${subject} من ${oldCode} إلى ${newCode}`);
+            showNotification('success', `تم تغيير الكود من ${teacherCode} إلى ${newCode}`);
         }
         
         // إعادة تعيين جميع الأكواد
@@ -3309,32 +3764,36 @@
                 return;
             }
             
-            showConfirm('هل أنت متأكد من إعادة تعيين جميع الأكواد؟\nسيتم إنشاء أكواد جديدة لجميع المواد.', function() {
+            showConfirm('هل أنت متأكد من إعادة تعيين جميع الأكواد؟\nسيتم إنشاء أكواد جديدة لجميع المدرسين.', function() {
                 // تسجيل الأكواد القديمة
-                const oldCodes = {...DEFAULT_CODES.subjects};
+                const oldCodes = {...TEACHERS};
                 
-                // إنشاء أكواد عشوائية جديدة
-                for (const subject of Object.keys(DEFAULT_CODES.subjects)) {
-                    const newCode = generateRandomCode();
-                    DEFAULT_CODES.subjects[subject] = newCode;
-                    logCodeChange(subject, oldCodes[subject], newCode);
+                // إنشاء أكواد عشوائية جديدة لكل مدرس
+                for (const [oldCode, teacher] of Object.entries(TEACHERS)) {
+                    if (oldCode === ADMIN_CODE) continue; // لا نغير كود المدير
                     
-                    // إضافة إشعار لكل مادة
+                    const newCode = generateRandomCode();
+                    TEACHERS[newCode] = teacher;
+                    delete TEACHERS[oldCode];
+                    
+                    logCodeChange(teacher.name, oldCode, newCode);
+                    
+                    // إضافة إشعار لكل مدرس
                     addNotification(
                         'مدير المدرسة د.مازن عبد الزهره',
                         'إدارة الأكواد',
                         'النظام',
                         'update',
-                        oldCodes[subject],
+                        oldCode,
                         newCode,
-                        `تم إعادة تعيين كود مادة ${subject} إلى ${newCode}`
+                        `تم إعادة تعيين كود ${teacher.name} إلى ${newCode}`
                     );
                 }
                 
                 // تحديث العرض
                 displayCurrentCodes();
                 
-                showNotification('success', 'تم إنشاء أكواد جديدة لجميع المواد');
+                showNotification('success', 'تم إنشاء أكواد جديدة لجميع المدرسين');
             });
         }
         
@@ -3342,19 +3801,19 @@
         function generateRandomCode() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let code = '';
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 6; i++) {
                 code += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return code;
         }
         
         // تسجيل تغييرات الأكواد
-        function logCodeChange(subject, oldCode, newCode) {
-            const log = JSON.parse(localStorage.getItem(STORAGE_KEYS.CODE_CHANGE_LOG) || '[]');
+        function logCodeChange(teacherName, oldCode, newCode) {
+            const log = JSON.parse(localStorage.getItem('code_change_log') || '[]');
             
             log.push({
                 date: new Date().toISOString(),
-                subject,
+                teacherName,
                 oldCode,
                 newCode,
                 changedBy: currentUser.name
@@ -3365,7 +3824,7 @@
                 log.shift();
             }
             
-            localStorage.setItem(STORAGE_KEYS.CODE_CHANGE_LOG, JSON.stringify(log));
+            localStorage.setItem('code_change_log', JSON.stringify(log));
         }
         
         // طباعة الأكواد
@@ -3392,12 +3851,12 @@
                         .code-item { 
                             padding: 10px; 
                             border-bottom: 1px solid #ddd;
+                            margin-bottom: 10px;
                             display: flex;
                             justify-content: space-between;
-                            margin-bottom: 10px;
                         }
-                        .subject-name { font-weight: bold; }
-                        .code-value { font-family: monospace; font-size: 1.2rem; }
+                        .teacher-info { font-weight: bold; width: 70%; }
+                        .code-value { font-family: monospace; font-size: 1.2rem; width: 30%; text-align: left; }
                         .footer { 
                             margin-top: 50px; 
                             text-align: center;
@@ -3412,21 +3871,37 @@
                 <body>
                     <div class="header">
                         <h1>إعدادية المجر الكبير للبنين</h1>
-                        <h2>أكواد الدخول للمدرسين</h2>
+                        <h2>أكواد الدخول للمدرسين والمرشدين</h2>
                         <p>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</p>
                     </div>
                     
                     <div class="code-list">
                         <div class="code-item" style="background-color: #f0f7ff;">
-                            <span class="subject-name">👑 المدير:</span>
+                            <span class="teacher-info">👑 المدير:</span>
                             <span class="code-value">${ADMIN_CODE}</span>
                         </div>
             `;
             
-            for (const [subject, code] of Object.entries(DEFAULT_CODES.subjects)) {
+            for (const [code, teacher] of Object.entries(TEACHERS)) {
+                if (code === ADMIN_CODE) continue;
+                
+                let teacherInfo = '';
+                if (teacher.type === 'teacher') {
+                    teacherInfo = `${teacher.name} - ${teacher.subject}`;
+                    if (teacher.allowedClasses && teacher.allowedClasses.length > 0) {
+                        teacherInfo += ` (الصفوف: ${teacher.allowedClasses.join(',')}`;
+                        if (teacher.allowedDivisions && teacher.allowedDivisions.length > 0) {
+                            teacherInfo += ` - الشعب: ${teacher.allowedDivisions.join(',')}`;
+                        }
+                        teacherInfo += `)`;
+                    }
+                } else if (teacher.type === 'viewer') {
+                    teacherInfo = `${teacher.name} - ${teacher.role}`;
+                }
+                
                 printContent += `
                     <div class="code-item">
-                        <span class="subject-name">${subject}:</span>
+                        <span class="teacher-info">${teacherInfo}</span>
                         <span class="code-value">${code}</span>
                     </div>
                 `;
@@ -3611,6 +4086,7 @@
                                 name: student.name,
                                 class: student.class,
                                 division: student.division,
+                                studentType: student.studentType || 'regular', // إضافة نوع الطالب
                                 parentPhone: student.parentPhone,
                                 grades: student.grades || {},
                                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3622,6 +4098,7 @@
                                 name: student.name,
                                 class: student.class,
                                 division: student.division,
+                                studentType: student.studentType || 'regular', // إضافة نوع الطالب
                                 parentPhone: student.parentPhone,
                                 grades: student.grades || {},
                                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -3802,6 +4279,7 @@
                                             name: student.name,
                                             class: student.class,
                                             division: student.division,
+                                            studentType: student.studentType || 'regular',
                                             parentPhone: student.parentPhone,
                                             grades: student.grades || {},
                                             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -4105,7 +4583,7 @@
                                         uploadToServer();
                                     });
                                 }, 2000);
-                                }
+                            }
                         });
                     } catch (error) {
                         showNotification('error', `خطأ في تحميل الملف: ${error.message}`);
@@ -4133,28 +4611,21 @@
             csvContent += `إجمالي الطلاب: ${students.length}\n\n`;
             
             // رأس الجدول
-            csvContent += "الاسم,الصف,الشعبة,رقم الهاتف,المادة,الشهر1 الفصل1,الشهر2 الفصل1,السعي,نصف السنة,الشهر1 الفصل2,الشهر2 الفصل2,السعي,نهاية السنة,المعدل النهائي\n";
+            csvContent += "النوع,الاسم,الصف,الشعبة,رقم الهاتف,المادة,الشهر1 الفصل1,الشهر2 الفصل1,مجموع الشهرين,اليومي,السعي,نصف السنة,الشهر1 الفصل2,الشهر2 الفصل2,مجموع الشهرين,اليومي,السعي,نهاية السنة,المعدل النهائي\n";
             
             // بيانات الطلاب
             students.forEach(student => {
+                const studentType = student.studentType === 'enrollment' ? 'انتساب' : 'نظامي';
+                const studentClass = student.class.includes('enrollment') ? student.class.replace('enrollment', 'انتساب') : student.class;
                 const subjects = subjectsByClass[student.class] || [];
                 subjects.forEach(subject => {
                     const grades = student.grades[subject] || {
-                        firstTerm: { month1: '', month2: '', midterm: '' },
-                        secondTerm: { month1: '', month2: '', final: '' },
+                        firstTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', midterm: '' },
+                        secondTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', final: '' },
                         finalAverage: ''
                     };
                     
-                    // حساب السعي
-                    const month1First = grades.firstTerm.month1 || 0;
-                    const month2First = grades.firstTerm.month2 || 0;
-                    const firstMonthly = (month1First && month2First) ? Math.round((parseInt(month1First) + parseInt(month2First)) / 2) : '';
-                    
-                    const month1Second = grades.secondTerm.month1 || 0;
-                    const month2Second = grades.secondTerm.month2 || 0;
-                    const secondMonthly = (month1Second && month2Second) ? Math.round((parseInt(month1Second) + parseInt(month2Second)) / 2) : '';
-                    
-                    csvContent += `"${student.name}",${student.class},${student.division},${student.parentPhone},"${subject}",${grades.firstTerm.month1 || ''},${grades.firstTerm.month2 || ''},${firstMonthly},${grades.firstTerm.midterm || ''},${grades.secondTerm.month1 || ''},${grades.secondTerm.month2 || ''},${secondMonthly},${grades.secondTerm.final || ''},${grades.finalAverage || ''}\n`;
+                    csvContent += `"${studentType}","${student.name}",${studentClass},${student.division},${student.parentPhone},"${subject}",${grades.firstTerm.month1 || ''},${grades.firstTerm.month2 || ''},${grades.firstTerm.monthlySum || ''},${grades.firstTerm.daily || ''},${grades.firstTerm.monthlyAverage || ''},${grades.firstTerm.midterm || ''},${grades.secondTerm.month1 || ''},${grades.secondTerm.month2 || ''},${grades.secondTerm.monthlySum || ''},${grades.secondTerm.daily || ''},${grades.secondTerm.monthlyAverage || ''},${grades.secondTerm.final || ''},${grades.finalAverage || ''}\n`;
                 });
             });
             
@@ -4288,11 +4759,12 @@
         
         async function importBulkNames() {
             const namesText = document.getElementById('bulkNames').value;
+            const studentType = document.getElementById('bulkType').value;
             const studentClass = document.getElementById('bulkClass').value;
             const division = document.getElementById('bulkDivision').value;
             
-            if (!studentClass || !division) {
-                showNotification('warning', 'يرجى اختيار الصف والشعبة');
+            if (!studentType || !studentClass || !division) {
+                showNotification('warning', 'يرجى اختيار النوع والصف والشعبة');
                 return;
             }
             
@@ -4304,7 +4776,7 @@
             }
             
             // التحقق من الصلاحيات
-            if (currentUser.type === 'teacher') {
+            if (currentUser.type !== 'admin') {
                 showNotification('error', 'ليس لديك صلاحية لإضافة طلاب');
                 return;
             }
@@ -4326,16 +4798,23 @@
                 if (!existingStudent) {
                     // إنشاء درجات فارغة للطالب
                     const defaultGrades = {};
-                    subjectsByClass[studentClass].forEach(subject => {
+                    const classKey = studentClass.includes('enrollment') ? studentClass : studentClass;
+                    subjectsByClass[classKey].forEach(subject => {
                         defaultGrades[subject] = {
                             firstTerm: {
                                 month1: '',
                                 month2: '',
+                                monthlySum: '',
+                                daily: '',
+                                monthlyAverage: '',
                                 midterm: ''
                             },
                             secondTerm: {
                                 month1: '',
                                 month2: '',
+                                monthlySum: '',
+                                daily: '',
+                                monthlyAverage: '',
                                 final: ''
                             },
                             finalAverage: ''
@@ -4351,6 +4830,7 @@
                         name,
                         class: studentClass,
                         division,
+                        studentType: studentType,
                         parentPhone: 'لم يتم إضافته',
                         grades: defaultGrades,
                         createdAt: new Date().toISOString(),
@@ -4372,7 +4852,7 @@
                         'add',
                         null,
                         null,
-                        `تم إضافة طالب جديد: ${name} في الصف ${studentClass} - الشعبة ${division}`
+                        `تم إضافة طالب جديد: ${name} في الصف ${studentClass} - الشعبة ${division} - النوع: ${studentType === 'enrollment' ? 'انتساب' : 'نظامي'}`
                     );
                     
                 } else {
@@ -4416,22 +4896,99 @@
             });
         }
         
-        // ========== عرض جميع الطلاب مع التصفية الفورية ==========
+        // ========== عرض جميع الطلاب مع التصفية حسب الصلاحيات ==========
         function displayAllStudents() {
-            const filterClass = document.getElementById('filterClass').value;
-            const filterDivision = document.getElementById('filterDivision').value;
+            const filterType = document.getElementById('filterType');
+            const filterClass = document.getElementById('filterClass');
+            const filterDivision = document.getElementById('filterDivision');
             const tbody = document.getElementById('studentsTableBody');
+            
+            // تحديث خيارات التصفية حسب الصلاحيات
+            updateFilterOptions();
+            
+            const selectedType = filterType.value;
+            const selectedClass = filterClass.value;
+            const selectedDivision = filterDivision.value;
             
             let filteredStudents = students;
             
-            // تطبيق تصفية الصف
-            if (filterClass !== 'all') {
-                filteredStudents = filteredStudents.filter(student => student.class === filterClass);
+            // تطبيق تصفية الصلاحيات للمستخدم
+            if (currentUser && currentUser.type !== 'admin') {
+                // تطبيق تصفية الصلاحيات مع التصحيحات للمدرسين المحددين
+                filteredStudents = filteredStudents.filter(student => {
+                    // الحصول على صلاحيات المدرس الحالي
+                    const teacherClasses = currentUser.allowedClasses || [];
+                    const teacherDivisions = currentUser.allowedDivisions || [];
+                    
+                    // للمدرسين: لا يمكنهم رؤية طلاب الانتساب
+                    if (student.studentType === 'enrollment') {
+                        return false;
+                    }
+                    
+                    // تصحيح خاص للمدرسين الذين تم تحديد صلاحياتهم حديثاً
+                    if (currentUser.name === "ماجد چاسب") {
+                        // ماجد چاسب: الرابع شعبة ه فقط، السادس أ و ب فقط
+                        if (student.class === "4") {
+                            return teacherClasses.includes(student.class) && student.division === "ه";
+                        } else if (student.class === "6") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب");
+                        }
+                        return false;
+                    } else if (currentUser.name === "علي سيد خلف") {
+                        // علي سيد خلف: الرابع شعبة أ فقط، الخامس أ,ب,ج,د، السادس ه,و
+                        if (student.class === "4") {
+                            return teacherClasses.includes(student.class) && student.division === "أ";
+                        } else if (student.class === "5") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                        } else if (student.class === "6") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "ه" || student.division === "و");
+                        }
+                        return false;
+                    } else if (currentUser.name === "منتظر عبد الرضا") {
+                        // منتظر عبد الرضا: الخامس أ,ب,ج,د فقط، السادس ه فقط
+                        if (student.class === "5") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                        } else if (student.class === "6") {
+                            return teacherClasses.includes(student.class) && student.division === "ه";
+                        }
+                        return false;
+                    } else if (currentUser.name === "ماجد جبار") {
+                        // ماجد جبار: الخامس أ,ب,ج,د فقط، السادس ه فقط
+                        if (student.class === "5") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                        } else if (student.class === "6") {
+                            return teacherClasses.includes(student.class) && student.division === "ه";
+                        }
+                        return false;
+                    }
+                    
+                    // للمدرسين الآخرين: تطبيق الصلاحيات العادية
+                    return teacherClasses.includes(student.class) &&
+                           teacherDivisions.includes(student.division);
+                });
             }
             
-            // تطبيق تصفية الشعبة
-            if (filterDivision !== 'all') {
-                filteredStudents = filteredStudents.filter(student => student.division === filterDivision);
+            // تطبيق تصفية النوع المختار
+            if (selectedType !== 'all') {
+                filteredStudents = filteredStudents.filter(student => student.studentType === selectedType);
+            }
+            
+            // تطبيق تصفية الصف المختار
+            if (selectedClass !== 'all') {
+                filteredStudents = filteredStudents.filter(student => student.class === selectedClass);
+            }
+            
+            // تطبيق تصفية الشعبة المختارة
+            if (selectedDivision !== 'all') {
+                filteredStudents = filteredStudents.filter(student => student.division === selectedDivision);
             }
             
             // ترتيب الطلاب أبجدياً
@@ -4440,19 +4997,22 @@
             if (filteredStudents.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 40px;">
+                        <td colspan="6" style="text-align: center; padding: 40px;">
                             <i class="fas fa-user-slash" style="font-size: 2rem; color: #ccc; margin-bottom: 15px; display: block;"></i>
                             <p>لا يوجد طلاب مسجلين في النظام</p>
+                            ${currentUser.type === 'admin' ? `
                             <button class="btn btn-primary" id="addFirstStudent" style="margin-top: 15px;">
                                 <i class="fas fa-user-plus"></i> إضافة أول طالب
-                            </button>
+                            </button>` : ''}
                         </td>
                     </tr>
                 `;
                 
-                document.getElementById('addFirstStudent').addEventListener('click', function() {
-                    document.getElementById('addStudentBtn').click();
-                });
+                if (currentUser.type === 'admin') {
+                    document.getElementById('addFirstStudent').addEventListener('click', function() {
+                        document.getElementById('addStudentBtn').click();
+                    });
+                }
                 
                 document.getElementById('studentsSection').style.display = 'block';
                 return;
@@ -4462,14 +5022,27 @@
             filteredStudents.forEach((student, index) => {
                 let classText = '';
                 let classBadge = '';
-                if (student.class === '4') {
-                    classText = 'الرابع العلمي';
+                let typeText = '';
+                let typeBadge = '';
+                
+                // تحديد نوع الطالب
+                if (student.studentType === 'enrollment') {
+                    typeText = 'انتساب';
+                    typeBadge = 'enrollment-badge';
+                } else {
+                    typeText = 'نظامي';
+                    typeBadge = '';
+                }
+                
+                // تحديد الصف
+                if (student.class === '4' || student.class === '4enrollment') {
+                    classText = student.class === '4enrollment' ? 'انتساب الرابع العلمي' : 'الرابع العلمي';
                     classBadge = 'class-4';
-                } else if (student.class === '5') {
-                    classText = 'الخامس العلمي';
+                } else if (student.class === '5' || student.class === '5enrollment') {
+                    classText = student.class === '5enrollment' ? 'انتساب الخامس العلمي' : 'الخامس العلمي';
                     classBadge = 'class-5';
-                } else if (student.class === '6') {
-                    classText = 'السادس العلمي';
+                } else if (student.class === '6' || student.class === '6enrollment') {
+                    classText = student.class === '6enrollment' ? 'انتساب السادس العلمي' : 'السادس العلمي';
                     classBadge = 'class-6';
                 }
                 
@@ -4478,17 +5051,19 @@
                 tableHTML += `
                     <tr id="student-row-${studentId}">
                         <td>${index + 1}. ${student.name}</td>
+                        <td><span class="${typeBadge}">${typeText}</span></td>
                         <td><span class="class-badge ${classBadge}">${classText}</span></td>
                         <td>${student.division}</td>
                         <td>${student.parentPhone}</td>
                         <td>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <button class="btn btn-primary" style="padding: 8px 15px; font-size: 0.9rem;" onclick="showStudentGrades('${studentId}')">
-                                    <i class="fas fa-eye"></i> عرض/تعديل الدرجات
+                                    <i class="fas fa-eye"></i> ${currentUser.type === 'viewer' ? 'عرض الدرجات' : 'عرض/تعديل الدرجات'}
                                 </button>
+                                ${currentUser.type === 'admin' ? `
                                 <button class="btn btn-danger" style="padding: 8px 15px; font-size: 0.9rem;" onclick="showDeleteModal('${studentId}', '${student.name}')">
                                     <i class="fas fa-trash"></i> حذف الطالب
-                                </button>
+                                </button>` : ''}
                             </div>
                         </td>
                     </tr>
@@ -4497,6 +5072,64 @@
             
             tbody.innerHTML = tableHTML;
             document.getElementById('studentsSection').style.display = 'block';
+        }
+        
+        // تحديث خيارات التصفية حسب الصلاحيات
+        function updateFilterOptions() {
+            const filterClass = document.getElementById('filterClass');
+            const filterDivision = document.getElementById('filterDivision');
+            
+            if (!currentUser) return;
+            
+            // للمشاهدين والمدرسين، تحديث الخيارات المتاحة فقط
+            if (currentUser.type !== 'admin') {
+                // تحديث خيارات الصفوف
+                const classOptions = filterClass.querySelectorAll('option');
+                classOptions.forEach(option => {
+                    // المدرسين لا يمكنهم رؤية خيارات الانتساب
+                    if (option.value.includes('enrollment')) {
+                        option.style.display = 'none';
+                    } else if (option.value !== 'all' && !currentUser.allowedClasses.includes(option.value)) {
+                        option.style.display = 'none';
+                    } else {
+                        option.style.display = '';
+                    }
+                });
+                
+                // تحديث خيارات الشعب
+                const divisionOptions = filterDivision.querySelectorAll('option');
+                divisionOptions.forEach(option => {
+                    // المدرسين لا يمكنهم رؤية شعب الانتساب
+                    if (option.value.includes('انتساب')) {
+                        option.style.display = 'none';
+                    } else if (option.value !== 'all' && !currentUser.allowedDivisions.includes(option.value)) {
+                        option.style.display = 'none';
+                    } else {
+                        option.style.display = '';
+                    }
+                });
+                
+                // إذا كان المستخدم لديه صف واحد فقط، حدده تلقائياً
+                if (currentUser.allowedClasses.length === 1) {
+                    filterClass.value = currentUser.allowedClasses[0];
+                }
+                
+                // إذا كان المستخدم لديه شعبة واحدة فقط، حددها تلقائياً
+                if (currentUser.allowedDivisions.length === 1) {
+                    filterDivision.value = currentUser.allowedDivisions[0];
+                }
+            } else {
+                // للمدير، إظهار جميع الخيارات
+                const classOptions = filterClass.querySelectorAll('option');
+                classOptions.forEach(option => {
+                    option.style.display = '';
+                });
+                
+                const divisionOptions = filterDivision.querySelectorAll('option');
+                divisionOptions.forEach(option => {
+                    option.style.display = '';
+                });
+            }
         }
         
         // ========== تهيئة التطبيق ==========
@@ -4540,11 +5173,81 @@
                 return;
             }
             
+            // التحقق من الصلاحيات للوصول إلى الطالب
+            if (currentUser && currentUser.type !== 'admin' && currentUser.type !== 'viewer') {
+                // للمدرسين: التحقق من أن الطالب ضمن الصفوف والشعب المسموح بها
+                // أولاً: لا يمكن للمدرسين الوصول لطلاب الانتساب
+                if (student.studentType === 'enrollment') {
+                    showNotification('error', 'ليس لديك صلاحية للوصول إلى درجات طلاب الانتساب');
+                    return;
+                }
+                
+                let hasAccess = false;
+                
+                // تطبيق تصفية خاصة للمدرسين المحددين
+                if (currentUser.name === "ماجد چاسب") {
+                    // ماجد چاسب: الرابع شعبة ه فقط، السادس أ و ب فقط
+                    if (student.class === "4") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   student.division === "ه";
+                    } else if (student.class === "6") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب");
+                    }
+                } else if (currentUser.name === "علي سيد خلف") {
+                    // علي سيد خلف: الرابع شعبة أ فقط، الخامس أ,ب,ج,د، السادس ه,و
+                    if (student.class === "4") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   student.division === "أ";
+                    } else if (student.class === "5") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                    } else if (student.class === "6") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "ه" || student.division === "و");
+                    }
+                } else if (currentUser.name === "منتظر عبد الرضا") {
+                    // منتظر عبد الرضا: الخامس أ,ب,ج,د فقط، السادس ه فقط
+                    if (student.class === "5") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                    } else if (student.class === "6") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   student.division === "ه";
+                    }
+                } else if (currentUser.name === "ماجد جبار") {
+                    // ماجد جبار: الخامس أ,ب,ج,د فقط، السادس ه فقط
+                    if (student.class === "5") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                    } else if (student.class === "6") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   student.division === "ه";
+                    }
+                } else {
+                    // للمدرسين الآخرين: تطبيق الصلاحيات العادية
+                    hasAccess = currentUser.allowedClasses.includes(student.class) &&
+                               currentUser.allowedDivisions.includes(student.division);
+                }
+                
+                if (!hasAccess) {
+                    showNotification('error', 'ليس لديك صلاحية للوصول إلى درجات هذا الطالب');
+                    return;
+                }
+            }
+            
             // تحديث معلومات الطالب
             let classText = '';
-            if (student.class === '4') classText = 'الرابع العلمي';
-            else if (student.class === '5') classText = 'الخامس العلمي';
-            else if (student.class === '6') classText = 'السادس العلمي';
+            if (student.class === '4' || student.class === '4enrollment') {
+                classText = student.class === '4enrollment' ? 'انتساب الرابع العلمي' : 'الرابع العلمي';
+            } else if (student.class === '5' || student.class === '5enrollment') {
+                classText = student.class === '5enrollment' ? 'انتساب الخامس العلمي' : 'الخامس العلمي';
+            } else if (student.class === '6' || student.class === '6enrollment') {
+                classText = student.class === '6enrollment' ? 'انتساب السادس العلمي' : 'السادس العلمي';
+            }
             
             document.getElementById('studentName').textContent = student.name;
             document.getElementById('studentClass').textContent = `الصف: ${classText}`;
@@ -4559,17 +5262,21 @@
                 <thead>
                     <tr>
                         <th rowspan="2" class="subject-header">المادة</th>
-                        <th colspan="4" class="term-header">الفصل الأول</th>
-                        <th colspan="4" class="term-header">الفصل الثاني</th>
+                        <th colspan="6" class="term-header">الفصل الأول</th>
+                        <th colspan="6" class="term-header">الفصل الثاني</th>
                         <th rowspan="2" class="subject-header">المعدل النهائي</th>
                     </tr>
                     <tr>
                         <th>امتحان الشهر الأول</th>
                         <th>امتحان الشهر الثاني</th>
+                        <th>مجموع الشهرين</th>
+                        <th>اليومي</th>
                         <th>السعي</th>
                         <th>نصف السنة</th>
                         <th>امتحان الشهر الأول</th>
                         <th>امتحان الشهر الثاني</th>
+                        <th>مجموع الشهرين</th>
+                        <th>اليومي</th>
                         <th>السعي</th>
                         <th>اختبار نهاية السنة</th>
                     </tr>
@@ -4577,36 +5284,60 @@
                 <tbody>
             `;
             
-            const subjects = subjectsByClass[student.class] || [];
+            const classKey = student.class.includes('enrollment') ? student.class : student.class;
+            const subjects = subjectsByClass[classKey] || [];
             subjects.forEach(subject => {
                 const subjectGrades = student.grades[subject] || {
-                    firstTerm: { month1: '', month2: '', midterm: '' },
-                    secondTerm: { month1: '', month2: '', final: '' },
+                    firstTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', midterm: '' },
+                    secondTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', final: '' },
                     finalAverage: ''
                 };
                 
-                // حساب السعي (المتوسط)
+                // حساب مجموع الشهرين (تم التعديل هنا)
                 const month1First = subjectGrades.firstTerm.month1 || '';
                 const month2First = subjectGrades.firstTerm.month2 || '';
-                let firstTermMonthly = '';
+                let firstTermMonthlySum = subjectGrades.firstTerm.monthlySum || '';
                 
                 if (month1First && month2First) {
                     const num1 = parseInt(convertArabicToEnglishNumber(month1First));
                     const num2 = parseInt(convertArabicToEnglishNumber(month2First));
                     if (!isNaN(num1) && !isNaN(num2)) {
-                        firstTermMonthly = Math.round((num1 + num2) / 2);
+                        firstTermMonthlySum = Math.round((num1 + num2) / 2); // التعديل: قسمة المجموع على 2
                     }
                 }
                 
                 const month1Second = subjectGrades.secondTerm.month1 || '';
                 const month2Second = subjectGrades.secondTerm.month2 || '';
-                let secondTermMonthly = '';
+                let secondTermMonthlySum = subjectGrades.secondTerm.monthlySum || '';
                 
                 if (month1Second && month2Second) {
                     const num1 = parseInt(convertArabicToEnglishNumber(month1Second));
                     const num2 = parseInt(convertArabicToEnglishNumber(month2Second));
                     if (!isNaN(num1) && !isNaN(num2)) {
-                        secondTermMonthly = Math.round((num1 + num2) / 2);
+                        secondTermMonthlySum = Math.round((num1 + num2) / 2); // التعديل: قسمة المجموع على 2
+                    }
+                }
+                
+                // حساب السعي (مجموع الشهرين + اليومي ÷ 2)
+                const dailyFirst = subjectGrades.firstTerm.daily || '';
+                let firstTermMonthlyAverage = subjectGrades.firstTerm.monthlyAverage || '';
+                
+                if (firstTermMonthlySum && dailyFirst) {
+                    const sum = parseInt(convertArabicToEnglishNumber(firstTermMonthlySum));
+                    const daily = parseInt(convertArabicToEnglishNumber(dailyFirst));
+                    if (!isNaN(sum) && !isNaN(daily)) {
+                        firstTermMonthlyAverage = Math.round((sum + daily) / 2); // التعديل: قسمة المجموع على 2
+                    }
+                }
+                
+                const dailySecond = subjectGrades.secondTerm.daily || '';
+                let secondTermMonthlyAverage = subjectGrades.secondTerm.monthlyAverage || '';
+                
+                if (secondTermMonthlySum && dailySecond) {
+                    const sum = parseInt(convertArabicToEnglishNumber(secondTermMonthlySum));
+                    const daily = parseInt(convertArabicToEnglishNumber(dailySecond));
+                    if (!isNaN(sum) && !isNaN(daily)) {
+                        secondTermMonthlyAverage = Math.round((sum + daily) / 2); // التعديل: قسمة المجموع على 2
                     }
                 }
                 
@@ -4622,12 +5353,24 @@
                 };
                 
                 const finalGradeClass = getGradeClass(finalAverage);
-                const firstMonthlyClass = getGradeClass(firstTermMonthly);
-                const secondMonthlyClass = getGradeClass(secondTermMonthly);
+                const firstMonthlyClass = getGradeClass(firstTermMonthlyAverage);
+                const secondMonthlyClass = getGradeClass(secondTermMonthlyAverage);
                 
                 // تحديد ما إذا كان المستخدم لديه صلاحية تعديل هذه المادة
-                const canEdit = currentUser.type === 'admin' || 
-                               (currentUser.type === 'teacher' && currentUser.subject === subject);
+                let canEdit = false;
+                if (currentUser.type === 'admin') {
+                    // المدير يستطيع تعديل جميع طلاب الانتساب فقط
+                    canEdit = (student.studentType === 'enrollment');
+                } else if (currentUser.type === 'teacher') {
+                    // المدرسون لا يمكنهم تعديل طلاب الانتساب
+                    if (student.studentType === 'enrollment') {
+                        canEdit = false;
+                    } else {
+                        canEdit = (currentUser.subject === subject);
+                    }
+                } else if (currentUser.type === 'viewer') {
+                    canEdit = false; // المشاهدون لا يمكنهم التعديل
+                }
                 
                 const readOnlyClass = canEdit ? '' : 'readonly-grade';
                 const readOnlyAttr = canEdit ? '' : 'readonly';
@@ -4650,8 +5393,19 @@
                                    data-term="first" data-type="month2" ${readOnlyAttr}>
                         </td>
                         <td>
-                            <span class="grade-value ${firstMonthlyClass} first-monthly">
-                                ${firstTermMonthly || ''}
+                            <span class="grade-value grade-average first-monthly-sum">
+                                ${firstTermMonthlySum || ''}
+                            </span>
+                        </td>
+                        <td>
+                            <input type="text" pattern="[0-9٠-٩]*" 
+                                   class="grade-input first-daily ${readOnlyClass}" 
+                                   value="${subjectGrades.firstTerm.daily || ''}"
+                                   data-term="first" data-type="daily" ${readOnlyAttr}>
+                        </td>
+                        <td>
+                            <span class="grade-value ${firstMonthlyClass} first-monthly-average">
+                                ${firstTermMonthlyAverage || ''}
                             </span>
                         </td>
                         <td>
@@ -4675,8 +5429,19 @@
                                    data-term="second" data-type="month2" ${readOnlyAttr}>
                         </td>
                         <td>
-                            <span class="grade-value ${secondMonthlyClass} second-monthly">
-                                ${secondTermMonthly || ''}
+                            <span class="grade-value grade-average second-monthly-sum">
+                                ${secondTermMonthlySum || ''}
+                            </span>
+                        </td>
+                        <td>
+                            <input type="text" pattern="[0-9٠-٩]*" 
+                                   class="grade-input second-daily ${readOnlyClass}" 
+                                   value="${subjectGrades.secondTerm.daily || ''}"
+                                   data-term="second" data-type="daily" ${readOnlyAttr}>
+                        </td>
+                        <td>
+                            <span class="grade-value ${secondMonthlyClass} second-monthly-average">
+                                ${secondTermMonthlyAverage || ''}
                             </span>
                         </td>
                         <td>
@@ -4700,13 +5465,28 @@
             tableHTML += '</tbody>';
             gradesTable.innerHTML = tableHTML;
             
-            // إعداد معالجات الأحداث لحقول الدرجات (فقط للحقول القابلة للتعديل)
-            setupGradeInputListeners();
+            // إخفاء زر حفظ للمشاهدين والمدير (ما لم يكن طالب انتساب للمدير)
+            if (currentUser.type === 'viewer') {
+                document.getElementById('saveGradesBtn').style.display = 'none';
+            } else if (currentUser.type === 'admin') {
+                // المدير يستطيع تعديل طلاب الانتساب فقط
+                if (student.studentType === 'enrollment') {
+                    document.getElementById('saveGradesBtn').style.display = 'flex';
+                } else {
+                    document.getElementById('saveGradesBtn').style.display = 'none';
+                }
+            } else {
+                // المدرسون العاديون
+                document.getElementById('saveGradesBtn').style.display = 'flex';
+            }
             
             document.getElementById('studentsSection').style.display = 'none';
             document.getElementById('addStudentSection').style.display = 'none';
             document.getElementById('bulkImportSection').style.display = 'none';
             document.getElementById('gradesSection').style.display = 'block';
+            
+            // إعداد معالجات الأحداث لحقول الدرجات (فقط للحقول القابلة للتعديل)
+            setupGradeInputListeners();
         }
         
         // إعداد معالجات الأحداث لحقول الدرجات
@@ -4716,63 +5496,165 @@
                     // التحقق من أن المدخل يحتوي على أرقام فقط (إنجليزية أو عربية)
                     this.value = this.value.replace(/[^0-9٠-٩]/g, '');
                     
-                    if (this.getAttribute('data-type') === 'month1' || this.getAttribute('data-type') === 'month2') {
-                        updateMonthlyAverage(this);
+                    const term = this.getAttribute('data-term');
+                    const type = this.getAttribute('data-type');
+                    
+                    if (type === 'month1' || type === 'month2' || type === 'daily') {
+                        updateMonthlyCalculations(this, term);
                     }
                 });
                 
                 input.addEventListener('change', function() {
-                    if (this.getAttribute('data-type') === 'month1' || this.getAttribute('data-type') === 'month2') {
-                        updateMonthlyAverage(this);
+                    const term = this.getAttribute('data-term');
+                    const type = this.getAttribute('data-type');
+                    
+                    if (type === 'month1' || type === 'month2' || type === 'daily') {
+                        updateMonthlyCalculations(this, term);
                     }
                 });
             });
         }
         
-        // تحديث السعي
-        function updateMonthlyAverage(inputElement) {
+        // تحديث حسابات الشهرين والسعي
+        function updateMonthlyCalculations(inputElement, term) {
             const row = inputElement.closest('tr');
             const subject = row.getAttribute('data-subject');
-            const term = inputElement.getAttribute('data-term');
-            const type = inputElement.getAttribute('data-type');
             
             const month1Input = row.querySelector(`.${term}-month1`);
             const month2Input = row.querySelector(`.${term}-month2`);
-            const monthlySpan = row.querySelector(`.${term}-monthly`);
+            const dailyInput = row.querySelector(`.${term}-daily`);
+            const monthlySumSpan = row.querySelector(`.${term}-monthly-sum`);
+            const monthlyAverageSpan = row.querySelector(`.${term}-monthly-average`);
             
             // تحويل الأرقام العربية إلى إنجليزية للحساب
             let month1Val = convertArabicToEnglishNumber(month1Input.value);
             let month2Val = convertArabicToEnglishNumber(month2Input.value);
+            let dailyVal = convertArabicToEnglishNumber(dailyInput.value);
             
             const month1 = parseInt(month1Val) || 0;
             const month2 = parseInt(month2Val) || 0;
-            let monthlyAverage = '';
+            const daily = parseInt(dailyVal) || 0;
             
-            if (month1 > 0 || month2 > 0) {
-                monthlyAverage = Math.round((month1 + month2) / 2);
+            // حساب مجموع الشهرين (تم التعديل هنا)
+            let monthlySum = '';
+            if (month1 > 0 && month2 > 0) {
+                monthlySum = Math.round((month1 + month2) / 2); // التعديل: قسمة المجموع على 2
+            } else if (month1 > 0 && month2 === 0) {
+                monthlySum = month1;
+            } else if (month1 === 0 && month2 > 0) {
+                monthlySum = month2;
             }
             
-            monthlySpan.textContent = monthlyAverage;
+            // حساب السعي (مجموع الشهرين + اليومي ÷ 2)
+            let monthlyAverage = '';
+            if (monthlySum && daily) {
+                monthlyAverage = Math.round((monthlySum + daily) / 2); // التعديل: قسمة المجموع على 2
+            } else if (monthlySum && !daily) {
+                monthlyAverage = monthlySum;
+            } else if (!monthlySum && daily) {
+                monthlyAverage = daily;
+            }
             
+            // تحديث القيم المعروضة
+            monthlySumSpan.textContent = monthlySum;
+            monthlyAverageSpan.textContent = monthlyAverage;
+            
+            // تحديث ألوان السعي
             if (monthlyAverage >= 70) {
-                monthlySpan.className = 'grade-value grade-excellent ' + term + '-monthly';
+                monthlyAverageSpan.className = `grade-value grade-excellent ${term}-monthly-average`;
             } else if (monthlyAverage >= 50) {
-                monthlySpan.className = 'grade-value grade-average ' + term + '-monthly';
+                monthlyAverageSpan.className = `grade-value grade-average ${term}-monthly-average`;
             } else if (monthlyAverage !== '') {
-                monthlySpan.className = 'grade-value grade-fail ' + term + '-monthly';
+                monthlyAverageSpan.className = `grade-value grade-fail ${term}-monthly-average`;
             } else {
-                monthlySpan.className = 'grade-value grade-average ' + term + '-monthly';
+                monthlyAverageSpan.className = `grade-value grade-average ${term}-monthly-average`;
             }
         }
         
         // حفظ درجات الطالب
         async function saveStudentGrades(studentId) {
             // التحقق من الصلاحيات
+            if (currentUser.type === 'viewer') {
+                showNotification('error', 'ليس لديك صلاحية لتعديل الدرجات');
+                return;
+            }
+            
+            const student = students.find(s => (s.id == studentId) || (s.tempId == studentId));
+            if (!student) {
+                showNotification('error', 'لم يتم العثور على الطالب');
+                return;
+            }
+            
+            // التحقق من صلاحيات المدير (يستطيع تعديل طلاب الانتساب فقط)
+            if (currentUser.type === 'admin') {
+                if (student.studentType !== 'enrollment') {
+                    showNotification('error', 'المدير يستطيع تعديل طلاب الانتساب فقط');
+                    return;
+                }
+            }
+            
+            // التحقق من صلاحيات المدرس
             if (currentUser.type === 'teacher') {
-                // للمدرس، التحقق من أنه يحاول تعديل مادته فقط
-                const student = students.find(s => (s.id == studentId) || (s.tempId == studentId));
-                if (!student) {
-                    showNotification('error', 'لم يتم العثور على الطالب');
+                // التحقق من أن الطالب ليس من طلاب الانتساب
+                if (student.studentType === 'enrollment') {
+                    showNotification('error', 'ليس لديك صلاحية لتعديل درجات طلاب الانتساب');
+                    return;
+                }
+                
+                // التحقق من أن الطالب ضمن الصلاحيات مع التصحيحات الخاصة
+                let hasAccess = false;
+                
+                // تطبيق تصفية خاصة للمدرسين المحددين
+                if (currentUser.name === "ماجد چاسب") {
+                    // ماجد چاسب: الرابع شعبة ه فقط، السادس أ و ب فقط
+                    if (student.class === "4") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   student.division === "ه";
+                    } else if (student.class === "6") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب");
+                    }
+                } else if (currentUser.name === "علي سيد خلف") {
+                    // علي سيد خلف: الرابع شعبة أ فقط، الخامس أ,ب,ج,د، السادس ه,و
+                    if (student.class === "4") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   student.division === "أ";
+                    } else if (student.class === "5") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                    } else if (student.class === "6") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "ه" || student.division === "و");
+                    }
+                } else if (currentUser.name === "منتظر عبد الرضا") {
+                    // منتظر عبد الرضا: الخامس أ,ب,ج,د فقط، السادس ه فقط
+                    if (student.class === "5") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                    } else if (student.class === "6") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   student.division === "ه";
+                    }
+                } else if (currentUser.name === "ماجد جبار") {
+                    // ماجد جبار: الخامس أ,ب,ج,د فقط، السادس ه فقط
+                    if (student.class === "5") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                    } else if (student.class === "6") {
+                        hasAccess = currentUser.allowedClasses.includes(student.class) && 
+                                   student.division === "ه";
+                    }
+                } else {
+                    // للمدرسين الآخرين: تطبيق الصلاحيات العادية
+                    hasAccess = currentUser.allowedClasses.includes(student.class) &&
+                               currentUser.allowedDivisions.includes(student.division);
+                }
+                
+                if (!hasAccess) {
+                    showNotification('error', 'ليس لديك صلاحية لتعديل درجات هذا الطالب');
                     return;
                 }
                 
@@ -4798,12 +5680,6 @@
                 }
             }
             
-            const student = students.find(s => (s.id == studentId) || (s.tempId == studentId));
-            if (!student) {
-                showNotification('error', 'لم يتم العثور على الطالب');
-                return;
-            }
-            
             const rows = document.querySelectorAll('#gradesTable tbody tr');
             let changesMade = false;
             let changedSubjects = [];
@@ -4814,8 +5690,8 @@
                 if (!student.grades) student.grades = {};
                 if (!student.grades[subject]) {
                     student.grades[subject] = {
-                        firstTerm: { month1: '', month2: '', midterm: '' },
-                        secondTerm: { month1: '', month2: '', final: '' },
+                        firstTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', midterm: '' },
+                        secondTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', final: '' },
                         finalAverage: ''
                     };
                 }
@@ -4823,49 +5699,116 @@
                 // تحويل الأرقام العربية إلى إنجليزية قبل الحفظ
                 const month1First = convertArabicToEnglishNumber(row.querySelector('.first-month1').value);
                 const month2First = convertArabicToEnglishNumber(row.querySelector('.first-month2').value);
+                const dailyFirst = convertArabicToEnglishNumber(row.querySelector('.first-daily').value);
                 const midterm = convertArabicToEnglishNumber(row.querySelector('.first-midterm').value);
+                
                 const month1Second = convertArabicToEnglishNumber(row.querySelector('.second-month1').value);
                 const month2Second = convertArabicToEnglishNumber(row.querySelector('.second-month2').value);
+                const dailySecond = convertArabicToEnglishNumber(row.querySelector('.second-daily').value);
                 const final = convertArabicToEnglishNumber(row.querySelector('.second-final').value);
+                
                 const finalAverage = convertArabicToEnglishNumber(row.querySelector('.final-average-input').value);
+                
+                // حساب مجموع الشهرين (تم التعديل هنا)
+                let monthlySumFirst = '';
+                if (month1First && month2First) {
+                    const num1 = parseInt(month1First) || 0;
+                    const num2 = parseInt(month2First) || 0;
+                    monthlySumFirst = Math.round((num1 + num2) / 2); // التعديل: قسمة المجموع على 2
+                } else if (month1First && !month2First) {
+                    monthlySumFirst = parseInt(month1First) || '';
+                } else if (!month1First && month2First) {
+                    monthlySumFirst = parseInt(month2First) || '';
+                }
+                
+                let monthlySumSecond = '';
+                if (month1Second && month2Second) {
+                    const num1 = parseInt(month1Second) || 0;
+                    const num2 = parseInt(month2Second) || 0;
+                    monthlySumSecond = Math.round((num1 + num2) / 2); // التعديل: قسمة المجموع على 2
+                } else if (month1Second && !month2Second) {
+                    monthlySumSecond = parseInt(month1Second) || '';
+                } else if (!month1Second && month2Second) {
+                    monthlySumSecond = parseInt(month2Second) || '';
+                }
+                
+                // حساب السعي (مجموع الشهرين + اليومي ÷ 2)
+                let monthlyAverageFirst = '';
+                if (monthlySumFirst && dailyFirst) {
+                    const sum = parseInt(monthlySumFirst);
+                    const daily = parseInt(dailyFirst);
+                    if (!isNaN(sum) && !isNaN(daily)) {
+                        monthlyAverageFirst = Math.round((sum + daily) / 2); // التعديل: قسمة المجموع على 2
+                    }
+                } else if (monthlySumFirst && !dailyFirst) {
+                    monthlyAverageFirst = monthlySumFirst;
+                } else if (!monthlySumFirst && dailyFirst) {
+                    monthlyAverageFirst = dailyFirst;
+                }
+                
+                let monthlyAverageSecond = '';
+                if (monthlySumSecond && dailySecond) {
+                    const sum = parseInt(monthlySumSecond);
+                    const daily = parseInt(dailySecond);
+                    if (!isNaN(sum) && !isNaN(daily)) {
+                        monthlyAverageSecond = Math.round((sum + daily) / 2); // التعديل: قسمة المجموع على 2
+                    }
+                } else if (monthlySumSecond && !dailySecond) {
+                    monthlyAverageSecond = monthlySumSecond;
+                } else if (!monthlySumSecond && dailySecond) {
+                    monthlyAverageSecond = dailySecond;
+                }
                 
                 // تسجيل التغييرات
                 const oldMonth1First = student.grades[subject].firstTerm.month1;
                 const oldMonth2First = student.grades[subject].firstTerm.month2;
+                const oldDailyFirst = student.grades[subject].firstTerm.daily;
                 const oldMidterm = student.grades[subject].firstTerm.midterm;
+                
                 const oldMonth1Second = student.grades[subject].secondTerm.month1;
                 const oldMonth2Second = student.grades[subject].secondTerm.month2;
+                const oldDailySecond = student.grades[subject].secondTerm.daily;
                 const oldFinal = student.grades[subject].secondTerm.final;
+                
                 const oldFinalAverage = student.grades[subject].finalAverage;
                 
                 const newMonth1First = month1First || '';
                 const newMonth2First = month2First || '';
+                const newDailyFirst = dailyFirst || '';
                 const newMidterm = midterm || '';
+                
                 const newMonth1Second = month1Second || '';
                 const newMonth2Second = month2Second || '';
+                const newDailySecond = dailySecond || '';
                 const newFinal = final || '';
+                
                 const newFinalAverage = finalAverage || '';
                 
-                // التحقق إذا كان هناك تغيير
+                // التحقق إذا كان هناك تغيير في هذه المادة
+                let subjectChanged = false;
                 if (oldMonth1First !== newMonth1First || oldMonth2First !== newMonth2First || 
-                    oldMidterm !== newMidterm || oldMonth1Second !== newMonth1Second || 
-                    oldMonth2Second !== newMonth2Second || oldFinal !== newFinal || 
+                    oldDailyFirst !== newDailyFirst || oldMidterm !== newMidterm || 
+                    oldMonth1Second !== newMonth1Second || oldMonth2Second !== newMonth2Second || 
+                    oldDailySecond !== newDailySecond || oldFinal !== newFinal || 
                     oldFinalAverage !== newFinalAverage) {
                     
+                    subjectChanged = true;
                     changesMade = true;
                     changedSubjects.push(subject);
                     
-                    // تسجيل تفاصيل التغيير
+                    // تسجيل تفاصيل التغيير لهذه المادة فقط
                     let changeDetails = [];
                     if (oldMonth1First !== newMonth1First) changeDetails.push(`الشهر1 الفصل1: ${oldMonth1First || 'فارغ'} → ${newMonth1First || 'فارغ'}`);
                     if (oldMonth2First !== newMonth2First) changeDetails.push(`الشهر2 الفصل1: ${oldMonth2First || 'فارغ'} → ${newMonth2First || 'فارغ'}`);
+                    if (oldDailyFirst !== newDailyFirst) changeDetails.push(`اليومي الفصل1: ${oldDailyFirst || 'فارغ'} → ${newDailyFirst || 'فارغ'}`);
                     if (oldMidterm !== newMidterm) changeDetails.push(`نصف السنة: ${oldMidterm || 'فارغ'} → ${newMidterm || 'فارغ'}`);
                     if (oldMonth1Second !== newMonth1Second) changeDetails.push(`الشهر1 الفصل2: ${oldMonth1Second || 'فارغ'} → ${newMonth1Second || 'فارغ'}`);
                     if (oldMonth2Second !== newMonth2Second) changeDetails.push(`الشهر2 الفصل2: ${oldMonth2Second || 'فارغ'} → ${newMonth2Second || 'فارغ'}`);
+                    if (oldDailySecond !== newDailySecond) changeDetails.push(`اليومي الفصل2: ${oldDailySecond || 'فارغ'} → ${newDailySecond || 'فارغ'}`);
                     if (oldFinal !== newFinal) changeDetails.push(`نهاية السنة: ${oldFinal || 'فارغ'} → ${newFinal || 'فارغ'}`);
                     if (oldFinalAverage !== newFinalAverage) changeDetails.push(`المعدل النهائي: ${oldFinalAverage || 'فارغ'} → ${newFinalAverage || 'فارغ'}`);
                     
-                    // إضافة إشعار للمدير
+                    // إضافة إشعار للمدير لهذه المادة فقط
                     addNotification(
                         currentUser.name,
                         currentUser.subject || currentUser.role,
@@ -4873,16 +5816,23 @@
                         'update',
                         `درجات سابقة في ${subject}`,
                         `درجات جديدة في ${subject}`,
-                        `تغيير درجات ${student.name} في ${subject}: ${changeDetails.join(', ')}`
+                        `تغيير درجات ${student.name} في ${subject}: ${changeDetails.join(', ')}`,
+                        subject  // إرسال المادة التي تم تغييرها فقط
                     );
                 }
                 
                 student.grades[subject].firstTerm.month1 = newMonth1First;
                 student.grades[subject].firstTerm.month2 = newMonth2First;
+                student.grades[subject].firstTerm.monthlySum = monthlySumFirst.toString();
+                student.grades[subject].firstTerm.daily = newDailyFirst;
+                student.grades[subject].firstTerm.monthlyAverage = monthlyAverageFirst.toString();
                 student.grades[subject].firstTerm.midterm = newMidterm;
                 
                 student.grades[subject].secondTerm.month1 = newMonth1Second;
                 student.grades[subject].secondTerm.month2 = newMonth2Second;
+                student.grades[subject].secondTerm.monthlySum = monthlySumSecond.toString();
+                student.grades[subject].secondTerm.daily = newDailySecond;
+                student.grades[subject].secondTerm.monthlyAverage = monthlyAverageSecond.toString();
                 student.grades[subject].secondTerm.final = newFinal;
                 
                 student.grades[subject].finalAverage = newFinalAverage;
@@ -4962,7 +5912,11 @@
                 displayAllStudents();
             });
             
-            // التصفية الفورية عند تغيير الصف أو الشعبة
+            // التصفية الفورية عند تغيير النوع أو الصف أو الشعبة
+            document.getElementById('filterType').addEventListener('change', function() {
+                displayAllStudents();
+            });
+            
             document.getElementById('filterClass').addEventListener('change', function() {
                 displayAllStudents();
             });
@@ -4994,7 +5948,7 @@
                 }
             });
             
-            document.getElementById('changeCodeBtn').addEventListener('click', changeSubjectCode);
+            document.getElementById('changeCodeBtn').addEventListener('click', changeTeacherCode);
             document.getElementById('resetAllCodesBtn').addEventListener('click', resetAllCodes);
             document.getElementById('printCodesBtn').addEventListener('click', printCodes);
             document.getElementById('closeManageCodesBtn').addEventListener('click', function() {
@@ -5023,7 +5977,7 @@
             // استيراد أسماء دفعة واحدة
             document.getElementById('bulkImportBtn').addEventListener('click', function() {
                 // التحقق من الصلاحيات
-                if (currentUser.type === 'teacher') {
+                if (currentUser.type !== 'admin') {
                     showNotification('error', 'ليس لديك صلاحية لاستيراد الطلاب');
                     return;
                 }
@@ -5055,7 +6009,7 @@
             // إضافة طالب جديد
             document.getElementById('addStudentBtn').addEventListener('click', function() {
                 // التحقق من الصلاحيات
-                if (currentUser.type === 'teacher') {
+                if (currentUser.type !== 'admin') {
                     showNotification('error', 'ليس لديك صلاحية لإضافة طلاب');
                     return;
                 }
@@ -5093,7 +6047,7 @@
             document.getElementById('addStudentForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 // التحقق من الصلاحيات
-                if (currentUser.type === 'teacher') {
+                if (currentUser.type !== 'admin') {
                     showNotification('error', 'ليس لديك صلاحية لإضافة طلاب');
                     return;
                 }
@@ -5125,7 +6079,7 @@
             // زر النسخ الاحتياطي
             document.getElementById('backupBtn').addEventListener('click', function() {
                 // التحقق من الصلاحيات
-                if (currentUser.type === 'teacher') {
+                if (currentUser.type !== 'admin') {
                     showNotification('error', 'ليس لديك صلاحية للنسخ الاحتياطي');
                     return;
                 }
@@ -5156,7 +6110,7 @@
             // حذف كافة البيانات
             document.getElementById('deleteAllBtn').addEventListener('click', function() {
                 // التحقق من الصلاحيات
-                if (currentUser.type === 'teacher') {
+                if (currentUser.type !== 'admin') {
                     showNotification('error', 'ليس لديك صلاحية لحذف جميع البيانات');
                     return;
                 }
@@ -5189,10 +6143,77 @@
                 return;
             }
             
-            const filteredStudents = students.filter(student => 
+            let filteredStudents = students;
+            
+            // تطبيق تصفية الصلاحيات للمستخدم
+            if (currentUser && currentUser.type !== 'admin') {
+                // تطبيق تصفية الصلاحيات مع التصحيحات للمدرسين المحددين
+                filteredStudents = filteredStudents.filter(student => {
+                    // المدرسين لا يمكنهم رؤية طلاب الانتساب
+                    if (student.studentType === 'enrollment') {
+                        return false;
+                    }
+                    
+                    // الحصول على صلاحيات المدرس الحالي
+                    const teacherClasses = currentUser.allowedClasses || [];
+                    const teacherDivisions = currentUser.allowedDivisions || [];
+                    
+                    // تصحيح خاص للمدرسين الذين تم تحديد صلاحياتهم حديثاً
+                    if (currentUser.name === "ماجد چاسب") {
+                        // ماجد چاسب: الرابع شعبة ه فقط، السادس أ و ب فقط
+                        if (student.class === "4") {
+                            return teacherClasses.includes(student.class) && student.division === "ه";
+                        } else if (student.class === "6") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب");
+                        }
+                        return false;
+                    } else if (currentUser.name === "علي سيد خلف") {
+                        // علي سيد خلف: الرابع شعبة أ فقط، الخامس أ,ب,ج,د، السادس ه,و
+                        if (student.class === "4") {
+                            return teacherClasses.includes(student.class) && student.division === "أ";
+                        } else if (student.class === "5") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                        } else if (student.class === "6") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "ه" || student.division === "و");
+                        }
+                        return false;
+                    } else if (currentUser.name === "منتظر عبد الرضا") {
+                        // منتظر عبد الرضا: الخامس أ,ب,ج,د فقط، السادس ه فقط
+                        if (student.class === "5") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                        } else if (student.class === "6") {
+                            return teacherClasses.includes(student.class) && student.division === "ه";
+                        }
+                        return false;
+                    } else if (currentUser.name === "ماجد جبار") {
+                        // ماجد جبار: الخامس أ,ب,ج,د فقط، السادس ه فقط
+                        if (student.class === "5") {
+                            return teacherClasses.includes(student.class) && 
+                                   (student.division === "أ" || student.division === "ب" || 
+                                    student.division === "ج" || student.division === "د");
+                        } else if (student.class === "6") {
+                            return teacherClasses.includes(student.class) && student.division === "ه";
+                        }
+                        return false;
+                    }
+                    
+                    // للمدرسين الآخرين: تطبيق الصلاحيات العادية
+                    return teacherClasses.includes(student.class) &&
+                           teacherDivisions.includes(student.division);
+                });
+            }
+            
+            filteredStudents = filteredStudents.filter(student => 
                 student.name.toLowerCase().includes(searchTerm) ||
                 student.division.toLowerCase().includes(searchTerm) ||
-                student.class.toString().includes(searchTerm)
+                student.class.toString().includes(searchTerm) ||
+                (student.studentType === 'enrollment' ? 'انتساب' : 'نظامي').includes(searchTerm)
             );
             
             displaySearchResults(filteredStudents, searchTerm);
@@ -5211,16 +6232,22 @@
             let resultsHTML = '';
             filteredStudents.forEach(student => {
                 let classText = '';
-                if (student.class === '4') classText = 'الرابع العلمي';
-                else if (student.class === '5') classText = 'الخامس العلمي';
-                else if (student.class === '6') classText = 'السادس العلمي';
+                let typeText = student.studentType === 'enrollment' ? 'انتساب' : 'نظامي';
+                
+                if (student.class === '4' || student.class === '4enrollment') {
+                    classText = student.class === '4enrollment' ? 'انتساب الرابع العلمي' : 'الرابع العلمي';
+                } else if (student.class === '5' || student.class === '5enrollment') {
+                    classText = student.class === '5enrollment' ? 'انتساب الخامس العلمي' : 'الخامس العلمي';
+                } else if (student.class === '6' || student.class === '6enrollment') {
+                    classText = student.class === '6enrollment' ? 'انتساب السادس العلمي' : 'السادس العلمي';
+                }
                 
                 resultsHTML += `
                     <div class="search-result-item" data-id="${student.id || student.tempId}">
                         <i class="fas fa-user-graduate"></i>
                         <div>
                             <h4>${student.name}</h4>
-                            <p>الصف: ${classText} - الشعبة: ${student.division}</p>
+                            <p>${typeText} - الصف: ${classText} - الشعبة: ${student.division}</p>
                         </div>
                     </div>
                 `;
@@ -5245,27 +6272,35 @@
         // إضافة طالب جديد
         async function addNewStudent() {
             const name = document.getElementById('studentNameInput').value.trim();
+            const studentType = document.getElementById('studentTypeInput').value;
             const studentClass = document.getElementById('studentClassInput').value;
             const division = document.getElementById('studentDivisionInput').value;
             const parentPhone = document.getElementById('parentPhoneInput').value.trim();
             
-            if (!name || !studentClass || !division || !parentPhone) {
+            if (!name || !studentType || !studentClass || !division || !parentPhone) {
                 showNotification('warning', 'يرجى ملء جميع الحقول المطلوبة');
                 return;
             }
             
             // إنشاء درجات فارغة للطالب
             const defaultGrades = {};
-            subjectsByClass[studentClass].forEach(subject => {
+            const classKey = studentClass.includes('enrollment') ? studentClass : studentClass;
+            subjectsByClass[classKey].forEach(subject => {
                 defaultGrades[subject] = {
                     firstTerm: {
                         month1: '',
                         month2: '',
+                        monthlySum: '',
+                        daily: '',
+                        monthlyAverage: '',
                         midterm: ''
                     },
                     secondTerm: {
                         month1: '',
                         month2: '',
+                        monthlySum: '',
+                        daily: '',
+                        monthlyAverage: '',
                         final: ''
                     },
                     finalAverage: ''
@@ -5281,6 +6316,7 @@
                 name,
                 class: studentClass,
                 division,
+                studentType: studentType,
                 parentPhone,
                 grades: defaultGrades,
                 createdAt: new Date().toISOString(),
@@ -5304,7 +6340,7 @@
                 'add',
                 null,
                 null,
-                `تم إضافة طالب جديد: ${name} في الصف ${studentClass} - الشعبة ${division} - هاتف ولي الأمر: ${parentPhone}`
+                `تم إضافة طالب جديد: ${name} في الصف ${studentClass} - الشعبة ${division} - النوع: ${studentType === 'enrollment' ? 'انتساب' : 'نظامي'} - هاتف ولي الأمر: ${parentPhone}`
             );
             
             // تحديث العرض
@@ -5333,7 +6369,7 @@
         // عرض نافذة تأكيد الحذف
         function showDeleteModal(studentId, studentName) {
             // التحقق من الصلاحيات
-            if (currentUser.type === 'teacher') {
+            if (currentUser.type !== 'admin') {
                 showNotification('error', 'ليس لديك صلاحية لحذف الطلاب');
                 return;
             }
@@ -5368,7 +6404,7 @@
                     'delete',
                     null,
                     null,
-                    `تم حذف الطالب: ${studentName} من الصف ${student.class} - الشعبة ${student.division}`
+                    `تم حذف الطالب: ${studentName} من الصف ${student.class} - الشعبة ${student.division} - النوع: ${student.studentType === 'enrollment' ? 'انتساب' : 'نظامي'}`
                 );
                 
                 // حذف من المصفوفة المحلية
@@ -5427,9 +6463,15 @@
             }
             
             let classText = '';
-            if (student.class === '4') classText = 'الرابع العلمي';
-            else if (student.class === '5') classText = 'الخامس العلمي';
-            else if (student.class === '6') classText = 'السادس العلمي';
+            let typeText = student.studentType === 'enrollment' ? 'انتساب' : 'نظامي';
+            
+            if (student.class === '4' || student.class === '4enrollment') {
+                classText = student.class === '4enrollment' ? 'انتساب الرابع العلمي' : 'الرابع العلمي';
+            } else if (student.class === '5' || student.class === '5enrollment') {
+                classText = student.class === '5enrollment' ? 'انتساب الخامس العلمي' : 'الخامس العلمي';
+            } else if (student.class === '6' || student.class === '6enrollment') {
+                classText = student.class === '6enrollment' ? 'انتساب السادس العلمي' : 'السادس العلمي';
+            }
             
             let printContent = `
                 <!DOCTYPE html>
@@ -5466,6 +6508,7 @@
                     
                     <div class="student-info">
                         <p><strong>اسم الطالب:</strong> ${student.name}</p>
+                        <p><strong>النوع:</strong> ${typeText}</p>
                         <p><strong>الصف:</strong> ${classText}</p>
                         <p><strong>الشعبة:</strong> ${student.division}</p>
                         <p><strong>رقم هاتف ولي الأمر:</strong> ${student.parentPhone}</p>
@@ -5476,17 +6519,21 @@
                         <thead>
                             <tr>
                                 <th rowspan="2">المادة</th>
-                                <th colspan="4">الفصل الأول</th>
-                                <th colspan="4">الفصل الثاني</th>
+                                <th colspan="6">الفصل الأول</th>
+                                <th colspan="6">الفصل الثاني</th>
                                 <th rowspan="2">المعدل النهائي</th>
                             </tr>
                             <tr>
                                 <th>امتحان الشهر الأول</th>
                                 <th>امتحان الشهر الثاني</th>
+                                <th>مجموع الشهرين</th>
+                                <th>اليومي</th>
                                 <th>السعي</th>
                                 <th>نصف السنة</th>
                                 <th>امتحان الشهر الأول</th>
                                 <th>امتحان الشهر الثاني</th>
+                                <th>مجموع الشهرين</th>
+                                <th>اليومي</th>
                                 <th>السعي</th>
                                 <th>اختبار نهاية السنة</th>
                             </tr>
@@ -5495,63 +6542,31 @@
             `;
             
             // إضافة بيانات المواد
-            const subjects = subjectsByClass[student.class] || [];
+            const classKey = student.class.includes('enrollment') ? student.class : student.class;
+            const subjects = subjectsByClass[classKey] || [];
             subjects.forEach(subject => {
                 const subjectGrades = student.grades[subject] || {
-                    firstTerm: { month1: '', month2: '', midterm: '' },
-                    secondTerm: { month1: '', month2: '', final: '' },
+                    firstTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', midterm: '' },
+                    secondTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', final: '' },
                     finalAverage: ''
                 };
-                
-                // حساب السعي
-                const month1First = subjectGrades.firstTerm.month1 || '';
-                const month2First = subjectGrades.firstTerm.month2 || '';
-                let firstTermMonthly = '';
-                
-                if (month1First && month2First) {
-                    const num1 = parseInt(convertArabicToEnglishNumber(month1First));
-                    const num2 = parseInt(convertArabicToEnglishNumber(month2First));
-                    if (!isNaN(num1) && !isNaN(num2)) {
-                        firstTermMonthly = Math.round((num1 + num2) / 2);
-                    }
-                }
-                
-                const month1Second = subjectGrades.secondTerm.month1 || '';
-                const month2Second = subjectGrades.secondTerm.month2 || '';
-                let secondTermMonthly = '';
-                
-                if (month1Second && month2Second) {
-                    const num1 = parseInt(convertArabicToEnglishNumber(month1Second));
-                    const num2 = parseInt(convertArabicToEnglishNumber(month2Second));
-                    if (!isNaN(num1) && !isNaN(num2)) {
-                        secondTermMonthly = Math.round((num1 + num2) / 2);
-                    }
-                }
-                
-                const finalAverage = subjectGrades.finalAverage || '';
-                
-                let finalGradeClass = '';
-                if (finalAverage) {
-                    const numGrade = parseInt(convertArabicToEnglishNumber(finalAverage));
-                    if (!isNaN(numGrade)) {
-                        if (numGrade >= 70) finalGradeClass = 'grade-excellent';
-                        else if (numGrade >= 50) finalGradeClass = 'grade-average';
-                        else finalGradeClass = 'grade-fail';
-                    }
-                }
                 
                 printContent += `
                     <tr>
                         <td class="subject-header">${subject}</td>
-                        <td>${month1First || ''}</td>
-                        <td>${month2First || ''}</td>
-                        <td>${firstTermMonthly || ''}</td>
+                        <td>${subjectGrades.firstTerm.month1 || ''}</td>
+                        <td>${subjectGrades.firstTerm.month2 || ''}</td>
+                        <td>${subjectGrades.firstTerm.monthlySum || ''}</td>
+                        <td>${subjectGrades.firstTerm.daily || ''}</td>
+                        <td>${subjectGrades.firstTerm.monthlyAverage || ''}</td>
                         <td>${subjectGrades.firstTerm.midterm || ''}</td>
-                        <td>${month1Second || ''}</td>
-                        <td>${month2Second || ''}</td>
-                        <td>${secondTermMonthly || ''}</td>
+                        <td>${subjectGrades.secondTerm.month1 || ''}</td>
+                        <td>${subjectGrades.secondTerm.month2 || ''}</td>
+                        <td>${subjectGrades.secondTerm.monthlySum || ''}</td>
+                        <td>${subjectGrades.secondTerm.daily || ''}</td>
+                        <td>${subjectGrades.secondTerm.monthlyAverage || ''}</td>
                         <td>${subjectGrades.secondTerm.final || ''}</td>
-                        <td class="${finalGradeClass}">${finalAverage || ''}</td>
+                        <td>${subjectGrades.finalAverage || ''}</td>
                     </tr>
                 `;
             });
@@ -5578,8 +6593,13 @@
             // إجمالي الطلاب
             document.getElementById('totalStudents').textContent = students.length;
             
-            // عدد الصفوف
-            const uniqueClasses = [...new Set(students.map(student => student.class))];
+            // عدد الصفوف الفريدة (بما في ذلك الانتساب)
+            const uniqueClasses = [...new Set(students.map(student => {
+                if (student.class.includes('enrollment')) {
+                    return student.class.replace('enrollment', 'انتساب');
+                }
+                return student.class;
+            }))];
             document.getElementById('totalClasses').textContent = uniqueClasses.length;
         }
         
