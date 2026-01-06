@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
-        /* كل الأنماط تبقى كما هي */
+        /* كل الأنماط تبقى كما هي مع تعديلات طفيفة */
         * {
             margin: 0;
             padding: 0;
@@ -2279,6 +2279,9 @@
                     <p id="classStudentsCount">عدد الطلاب: 0</p>
                 </div>
                 <div class="class-actions">
+                    <button class="save-btn" id="saveAllGradesBtn">
+                        <i class="fas fa-save"></i> حفظ جميع التعديلات
+                    </button>
                     <button class="print-btn" id="printAllGradesBtn">
                         <i class="fas fa-print"></i> طباعة الدرجات
                     </button>
@@ -3198,8 +3201,7 @@
                     subject: null,
                     allowedClasses: ["4", "5", "6", "4enrollment", "5enrollment", "6enrollment"],
                     allowedDivisions: ["أ", "ب", "ج", "د", "ه", "و", "أ انتساب", "ب انتساب", "ج انتساب", "د انتساب", "ه انتساب"],
-                    isViewer: false,
-                    isAdmin: true
+                    isViewer: false
                 };
             }
             
@@ -3213,8 +3215,7 @@
                     subject: teacher.subject,
                     allowedClasses: teacher.allowedClasses,
                     allowedDivisions: teacher.allowedDivisions,
-                    isViewer: teacher.type === 'viewer',
-                    isAdmin: false
+                    isViewer: teacher.type === 'viewer'
                 };
             }
             
@@ -3335,7 +3336,7 @@
         // ========== نظام الإشعارات والتغييرات ==========
         
         // إضافة إشعار جديد
-        async function addNotification(teacherName, teacherSubject, studentName, action, oldValue, newValue, details, subjectChanged = null) {
+        function addNotification(teacherName, teacherSubject, studentName, action, oldValue, newValue, details, subjectChanged = null) {
             const notification = {
                 id: 'notif_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 teacherName: teacherName,
@@ -3349,26 +3350,14 @@
                 timestamp: new Date().toISOString(),
                 read: false,
                 date: new Date().toLocaleDateString('ar-EG'),
-                time: new Date().toLocaleTimeString('ar-EG'),
-                synced: false
+                time: new Date().toLocaleTimeString('ar-EG')
             };
             
             notifications.unshift(notification); // إضافة في البداية
             unreadNotificationsCount++;
             
-            // حفظ الإشعارات محلياً
+            // حفظ الإشعارات
             saveToLocalStorage();
-            
-            // إذا كان الاتصال متاحاً، رفع الإشعار إلى Firebase
-            if (isOnline && isFirebaseInitialized && db) {
-                try {
-                    await db.collection('notifications').add(notification);
-                    notification.synced = true;
-                    console.log("تم رفع الإشعار إلى Firebase");
-                } catch (error) {
-                    console.error("خطأ في رفع الإشعار إلى Firebase:", error);
-                }
-            }
             
             // تحديث العدادات
             updateNotificationBadge();
@@ -4248,19 +4237,6 @@
                     }
                 }
                 
-                // ثالثاً: رفع الإشعارات غير المزامنة
-                const unsyncedNotifications = notifications.filter(n => !n.synced);
-                for (const notification of unsyncedNotifications) {
-                    try {
-                        await db.collection('notifications').add(notification);
-                        notification.synced = true;
-                        successCount++;
-                    } catch (error) {
-                        console.error("خطأ في رفع الإشعار:", error);
-                        errorCount++;
-                    }
-                }
-                
                 // مسح قائمة الانتظار
                 pendingSyncQueue = [];
                 
@@ -4292,7 +4268,7 @@
             }
         }
         
-        // ========== دالة استيراد البيانات من السيرفر - المحدثة ==========
+        // ========== دالة استيراد البيانات من السيرفر ==========
         async function downloadFromServer() {
             if (!isOnline) {
                 showNotification('error', 'لا يوجد اتصال بالإنترنت للاستيراد');
@@ -4313,15 +4289,12 @@
                     pendingSyncQueue = [];
                     localChanges.clear();
                     lastSyncTime = null;
-                    notifications = [];
-                    unreadNotificationsCount = 0;
                     
                     // حذف جميع البيانات من localStorage
                     localStorage.removeItem(STORAGE_KEYS.STUDENTS);
                     localStorage.removeItem(STORAGE_KEYS.PENDING_SYNC);
                     localStorage.removeItem(STORAGE_KEYS.LAST_SYNC);
                     localStorage.removeItem(STORAGE_KEYS.LOCAL_CHANGES);
-                    localStorage.removeItem(STORAGE_KEYS.NOTIFICATIONS);
                     
                     // 2. استيراد البيانات من Firebase
                     const snapshot = await db.collection('students').get();
@@ -4335,40 +4308,30 @@
                         });
                     });
                     
-                    // 3. استيراد الإشعارات من Firebase
-                    const notificationsSnapshot = await db.collection('notifications').get();
-                    const serverNotifications = [];
-                    
-                    notificationsSnapshot.forEach(doc => {
-                        const notificationData = doc.data();
-                        notificationData.id = doc.id;
-                        serverNotifications.push(notificationData);
-                    });
-                    
                     if (serverStudents.length === 0) {
                         showNotification('warning', 'لا توجد بيانات على السيرفر');
                         return;
                     }
                     
-                    // 4. استبدال البيانات المحلية ببيانات السيرفر
+                    // 3. استبدال البيانات المحلية ببيانات السيرفر
                     students = serverStudents;
-                    notifications = serverNotifications;
-                    unreadNotificationsCount = notifications.filter(n => !n.read).length;
                     
-                    // 5. تحديث وقت آخر مزامنة
+                    // 4. تحديث وقت آخر مزامنة
                     lastSyncTime = new Date();
                     
-                    // 6. حفظ محلياً
+                    // 5. حفظ محلياً
                     saveToLocalStorage();
                     
-                    // 7. تحديث العرض
+                    // 6. تحديث العرض
                     updateStats();
-                    updateNotificationsStats();
-                    displayAllStudents();
                     updateLastSyncTime();
                     updateStorageStatus();
+                    updatePendingSyncList();
                     
-                    showNotification('success', `تم حذف البيانات المحلية واستيراد ${serverStudents.length} طالب و ${serverNotifications.length} إشعار من السيرفر بنجاح`);
+                    // 7. عرض قائمة الطلاب
+                    displayAllStudents();
+                    
+                    showNotification('success', `تم حذف البيانات المحلية واستيراد ${serverStudents.length} طالب من السيرفر بنجاح`);
                     
                 } catch (error) {
                     console.error("خطأ في استيراد البيانات من السيرفر:", error);
@@ -5458,7 +5421,7 @@
                 // تحديد ما إذا كان المستخدم لديه صلاحية تعديل
                 let canEdit = false;
                 if (currentUser.type === 'admin') {
-                    canEdit = false; // المدير لا يستطيع التعديل، فقط المشاهدة
+                    canEdit = true; // المدير يستطيع تعديل جميع طلاب الانتساب والنظاميين
                 } else if (currentUser.type === 'teacher') {
                     // المدرسون يمكنهم تعديل طلاب الانتساب فقط إذا كانوا مسؤولين عنهم
                     if (student.studentType === 'enrollment') {
@@ -5564,8 +5527,8 @@
             tableHTML += '</tbody>';
             allGradesTable.innerHTML = tableHTML;
             
-            // إخفاء زر حفظ للمشاهدين والمدير
-            if (currentUser.type === 'viewer' || currentUser.type === 'admin') {
+            // إخفاء زر حفظ للمشاهدين
+            if (currentUser.type === 'viewer') {
                 document.getElementById('saveAllGradesBtn').style.display = 'none';
             } else {
                 document.getElementById('saveAllGradesBtn').style.display = 'flex';
@@ -5677,7 +5640,7 @@
         // حفظ درجات الطلاب المعدلين فقط
         async function saveAllGrades() {
             // التحقق من الصلاحيات
-            if (currentUser.type === 'viewer' || currentUser.type === 'admin') {
+            if (currentUser.type === 'viewer') {
                 showNotification('error', 'ليس لديك صلاحية لتعديل الدرجات');
                 return;
             }
@@ -6136,8 +6099,10 @@
                 document.getElementById('studentsSection').style.display = 'block';
             });
             
-            // حذف زر حفظ الدرجات لأن المدير لا يستطيع التعديل
-            // تمت إزالته من HTML
+            // حفظ جميع الدرجات
+            document.getElementById('saveAllGradesBtn').addEventListener('click', async function() {
+                await saveAllGrades();
+            });
             
             // تقديم نموذج إضافة طالب
             document.getElementById('addStudentForm').addEventListener('submit', function(e) {
