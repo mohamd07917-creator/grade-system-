@@ -855,6 +855,13 @@
             color: #c62828;
         }
 
+        /* ألوان خاصة للغياب */
+        .grade-absent {
+            background-color: #ffebee;
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
+        }
+
         /* قسم إضافة طالب جديد */
         .add-student-section {
             background-color: var(--white);
@@ -2097,6 +2104,7 @@
             <button class="btn btn-info" id="uploadToServerBtn">
                 <i class="fas fa-cloud-upload-alt"></i> رفع البيانات إلى السيرفر
             </button>
+            <!-- زر استيراد البيانات من السيرفر - تم إصلاح المشكلة -->
             <button class="btn btn-info" id="downloadFromServerBtn">
                 <i class="fas fa-cloud-download-alt"></i> استيراد البيانات من السيرفر
             </button>
@@ -2309,6 +2317,9 @@
                     <p id="profileClassInfo">الصف: - | الشعبة: - | النوع: -</p>
                 </div>
                 <div class="class-actions">
+                    <button class="print-btn" id="printStudentGradesBtn">
+                        <i class="fas fa-print"></i> طباعة درجات الطالب
+                    </button>
                     <button class="close-btn" id="closeProfileBtn">
                         <i class="fas fa-times"></i> إغلاق
                     </button>
@@ -2840,7 +2851,7 @@
                 type: "teacher",
                 subject: "اللغة الإنجليزية",
                 allowedClasses: ["4"],
-                allowedDivisions: ["أ"]
+                allowedDivisions: ["أ", "ب"]  // تمت إضافة الشعبة ب هنا
             },
             
             "MHD004": {
@@ -2850,15 +2861,6 @@
                 subject: "اللغة الإنجليزية",
                 allowedClasses: ["5"],
                 allowedDivisions: ["ج", "د"]
-            },
-            
-            "MHD005": {
-                name: "محمد كريدي",
-                role: "مدرس اللغة الإنجليزية",
-                type: "teacher",
-                subject: "اللغة الإنجليزية",
-                allowedClasses: ["4"],
-                allowedDivisions: ["ب"]
             },
             
             "ALI001": {
@@ -3261,6 +3263,8 @@
                     document.getElementById('bulkImportBtn').style.display = 'flex';
                     document.getElementById('deleteAllBtn').style.display = 'flex';
                     document.getElementById('backupBtn').style.display = 'flex';
+                    document.getElementById('uploadToServerBtn').style.display = 'flex';
+                    document.getElementById('downloadFromServerBtn').style.display = 'flex'; // إظهار الزر للمدير
                     updateNotificationBadge();
                 } else if (user.type === 'teacher') {
                     document.getElementById('manageCodesBtn').style.display = 'none';
@@ -3270,6 +3274,9 @@
                     document.getElementById('bulkImportBtn').style.display = 'none';
                     document.getElementById('deleteAllBtn').style.display = 'none';
                     document.getElementById('backupBtn').style.display = 'none';
+                    document.getElementById('uploadToServerBtn').style.display = 'none';
+                    // إظهار زر استيراد البيانات من السيرفر للمدرسين - التعديل المطلوب
+                    document.getElementById('downloadFromServerBtn').style.display = 'flex'; // إصلاح: إظهار الزر للمدرسين
                 } else if (user.type === 'viewer') {
                     document.getElementById('manageCodesBtn').style.display = 'none';
                     document.getElementById('notificationsHeaderBtn').style.display = 'none';
@@ -3279,7 +3286,8 @@
                     document.getElementById('deleteAllBtn').style.display = 'none';
                     document.getElementById('backupBtn').style.display = 'none';
                     document.getElementById('uploadToServerBtn').style.display = 'none';
-                    document.getElementById('downloadFromServerBtn').style.display = 'none';
+                    // تمكين زر استيراد البيانات من السيرفر للمشاهدين
+                    document.getElementById('downloadFromServerBtn').style.display = 'flex';
                 }
                 
                 showNotification('success', `مرحباً ${user.name}`);
@@ -3990,6 +3998,26 @@
                 }
             }
             return result;
+        }
+        
+        // ========== وظيفة فحص القبول للدرجات ==========
+        function isValidGrade(value) {
+            if (!value) return true; // السماح بالحقل الفارغ
+            if (value === 'غ') return true; // السماح بحرف الغياب
+            if (value === '0') return true; // السماح بالرقم 0
+            
+            // تحويل الأرقام العربية إلى إنجليزية للتحقق
+            const convertedValue = convertArabicToEnglishNumber(value);
+            
+            // التحقق مما إذا كانت القيمة تتكون من أرقام فقط
+            if (!/^\d+$/.test(convertedValue)) return false;
+            
+            // التحقق من أن القيمة لا تبدأ بصفر إلا إذا كانت 0
+            if (convertedValue.length > 1 && convertedValue.startsWith('0')) return false;
+            
+            // التحقق من أن القيمة بين 0 و 100
+            const numericValue = parseInt(convertedValue, 10);
+            return numericValue >= 0 && numericValue <= 100;
         }
         
         // ========== إدارة حالة الاتصال الحقيقية ==========
@@ -5131,6 +5159,25 @@
                 
                 const studentId = student.id || student.tempId;
                 
+                // إضافة زر عرض الدرجات للمدير فقط
+                let actionButtons = '';
+                if (currentUser.type === 'admin') {
+                    actionButtons = `
+                        <button class="btn btn-primary" style="padding: 8px 15px; font-size: 0.9rem; margin-left: 5px;" onclick="showStudentGrades('${studentId}')">
+                            <i class="fas fa-eye"></i> عرض الدرجات
+                        </button>
+                        <button class="btn btn-danger" style="padding: 8px 15px; font-size: 0.9rem;" onclick="showDeleteModal('${studentId}', '${student.name}')">
+                            <i class="fas fa-trash"></i> حذف الطالب
+                        </button>
+                    `;
+                } else if (currentUser.type === 'teacher') {
+                    actionButtons = `
+                        <button class="btn btn-primary" style="padding: 8px 15px; font-size: 0.9rem;" onclick="showStudentGrades('${studentId}')">
+                            <i class="fas fa-eye"></i> عرض الدرجات
+                        </button>
+                    `;
+                }
+                
                 tableHTML += `
                     <tr id="student-row-${studentId}">
                         <td>${index + 1}. ${student.name}</td>
@@ -5138,10 +5185,7 @@
                         <td><span class="class-badge ${classBadge}">${classText}</span></td>
                         <td>${student.division}</td>
                         <td>
-                            ${currentUser.type === 'admin' ? `
-                            <button class="btn btn-danger" style="padding: 8px 15px; font-size: 0.9rem;" onclick="showDeleteModal('${studentId}', '${student.name}')">
-                                <i class="fas fa-trash"></i> حذف الطالب
-                            </button>` : ''}
+                            ${actionButtons}
                         </td>
                     </tr>
                 `;
@@ -5209,6 +5253,17 @@
                     option.style.display = '';
                 });
             }
+        }
+        
+        // ========== عرض درجات طالب واحد ==========
+        function showStudentGrades(studentId) {
+            const student = students.find(s => (s.id == studentId) || (s.tempId == studentId));
+            if (!student) {
+                showNotification('error', 'لم يتم العثور على الطالب');
+                return;
+            }
+            
+            showStudentProfile(student);
         }
         
         // ========== عرض درجات جميع الطلاب في صف وشعبة معينة ==========
@@ -5313,6 +5368,13 @@
             document.getElementById('classDetails').textContent = `الصف: ${classText} | الشعبة: ${division} | المادة: ${subjectText}`;
             document.getElementById('classStudentsCount').textContent = `عدد الطلاب: ${filteredStudents.length}`;
             
+            // للمدير: إخفاء زر الحفظ وإظهار حقول القراءة فقط
+            if (currentUser.type === 'admin') {
+                document.getElementById('saveAllGradesBtn').style.display = 'none';
+            } else {
+                document.getElementById('saveAllGradesBtn').style.display = 'flex';
+            }
+            
             // إنشاء جدول درجات جميع الطلاب
             const allGradesTable = document.getElementById('allGradesTable');
             let tableHTML = '';
@@ -5361,33 +5423,57 @@
                 const month2First = subjectGrades.firstTerm.month2 || '';
                 let firstTermMonthlySum = subjectGrades.firstTerm.monthlySum || '';
                 
+                // التصحيح: الآن نقسم على 2 حتى لو كان أحد الشهرين 0 أو "غ"
                 if (month1First && month2First) {
-                    const num1 = parseInt(convertArabicToEnglishNumber(month1First));
-                    const num2 = parseInt(convertArabicToEnglishNumber(month2First));
-                    if (!isNaN(num1) && !isNaN(num2)) {
+                    const num1 = parseInt(convertArabicToEnglishNumber(month1First)) || 0;
+                    const num2 = parseInt(convertArabicToEnglishNumber(month2First)) || 0;
+                    // إذا كان أي منهما "غ"، تعامله كصفر
+                    if (month1First === 'غ' && month2First !== 'غ') {
+                        firstTermMonthlySum = Math.round(num2 / 2);
+                    } else if (month2First === 'غ' && month1First !== 'غ') {
+                        firstTermMonthlySum = Math.round(num1 / 2);
+                    } else if (month1First !== 'غ' && month2First !== 'غ') {
                         firstTermMonthlySum = Math.round((num1 + num2) / 2);
                     }
+                } else if (month1First && !month2First) {
+                    const num1 = parseInt(convertArabicToEnglishNumber(month1First)) || 0;
+                    firstTermMonthlySum = month1First === 'غ' ? 'غ' : num1;
+                } else if (!month1First && month2First) {
+                    const num2 = parseInt(convertArabicToEnglishNumber(month2First)) || 0;
+                    firstTermMonthlySum = month2First === 'غ' ? 'غ' : num2;
                 }
                 
                 const month1Second = subjectGrades.secondTerm.month1 || '';
                 const month2Second = subjectGrades.secondTerm.month2 || '';
                 let secondTermMonthlySum = subjectGrades.secondTerm.monthlySum || '';
                 
+                // التصحيح: الآن نقسم على 2 حتى لو كان أحد الشهرين 0 أو "غ"
                 if (month1Second && month2Second) {
-                    const num1 = parseInt(convertArabicToEnglishNumber(month1Second));
-                    const num2 = parseInt(convertArabicToEnglishNumber(month2Second));
-                    if (!isNaN(num1) && !isNaN(num2)) {
+                    const num1 = parseInt(convertArabicToEnglishNumber(month1Second)) || 0;
+                    const num2 = parseInt(convertArabicToEnglishNumber(month2Second)) || 0;
+                    // إذا كان أي منهما "غ"، تعامله كصفر
+                    if (month1Second === 'غ' && month2Second !== 'غ') {
+                        secondTermMonthlySum = Math.round(num2 / 2);
+                    } else if (month2Second === 'غ' && month1Second !== 'غ') {
+                        secondTermMonthlySum = Math.round(num1 / 2);
+                    } else if (month1Second !== 'غ' && month2Second !== 'غ') {
                         secondTermMonthlySum = Math.round((num1 + num2) / 2);
                     }
+                } else if (month1Second && !month2Second) {
+                    const num1 = parseInt(convertArabicToEnglishNumber(month1Second)) || 0;
+                    secondTermMonthlySum = month1Second === 'غ' ? 'غ' : num1;
+                } else if (!month1Second && month2Second) {
+                    const num2 = parseInt(convertArabicToEnglishNumber(month2Second)) || 0;
+                    secondTermMonthlySum = month2Second === 'غ' ? 'غ' : num2;
                 }
                 
                 const dailyFirst = subjectGrades.firstTerm.daily || '';
                 let firstTermMonthlyAverage = subjectGrades.firstTerm.monthlyAverage || '';
                 
                 if (firstTermMonthlySum && dailyFirst) {
-                    const sum = parseInt(convertArabicToEnglishNumber(firstTermMonthlySum));
-                    const daily = parseInt(convertArabicToEnglishNumber(dailyFirst));
-                    if (!isNaN(sum) && !isNaN(daily)) {
+                    const sum = parseInt(convertArabicToEnglishNumber(firstTermMonthlySum)) || 0;
+                    const daily = parseInt(convertArabicToEnglishNumber(dailyFirst)) || 0;
+                    if (sum > 0 && daily > 0) {
                         firstTermMonthlyAverage = Math.round((sum + daily) / 2);
                     }
                 }
@@ -5396,9 +5482,9 @@
                 let secondTermMonthlyAverage = subjectGrades.secondTerm.monthlyAverage || '';
                 
                 if (secondTermMonthlySum && dailySecond) {
-                    const sum = parseInt(convertArabicToEnglishNumber(secondTermMonthlySum));
-                    const daily = parseInt(convertArabicToEnglishNumber(dailySecond));
-                    if (!isNaN(sum) && !isNaN(daily)) {
+                    const sum = parseInt(convertArabicToEnglishNumber(secondTermMonthlySum)) || 0;
+                    const daily = parseInt(convertArabicToEnglishNumber(dailySecond)) || 0;
+                    if (sum > 0 && daily > 0) {
                         secondTermMonthlyAverage = Math.round((sum + daily) / 2);
                     }
                 }
@@ -5407,7 +5493,8 @@
                 
                 const getGradeClass = (grade) => {
                     if (!grade) return 'grade-average';
-                    const numGrade = parseInt(grade);
+                    if (grade === 'غ') return 'grade-absent';
+                    const numGrade = parseInt(convertArabicToEnglishNumber(grade));
                     if (isNaN(numGrade)) return 'grade-average';
                     if (numGrade >= 70) return 'grade-excellent';
                     if (numGrade >= 50) return 'grade-average';
@@ -5420,8 +5507,14 @@
                 
                 // تحديد ما إذا كان المستخدم لديه صلاحية تعديل
                 let canEdit = false;
+                let readOnlyClass = 'readonly-grade';
+                let readOnlyAttr = 'readonly';
+                
                 if (currentUser.type === 'admin') {
-                    canEdit = true; // المدير يستطيع تعديل جميع طلاب الانتساب والنظاميين
+                    // المدير يستطيع فقط المشاهدة
+                    canEdit = false;
+                    readOnlyClass = 'readonly-grade';
+                    readOnlyAttr = 'readonly';
                 } else if (currentUser.type === 'teacher') {
                     // المدرسون يمكنهم تعديل طلاب الانتساب فقط إذا كانوا مسؤولين عنهم
                     if (student.studentType === 'enrollment') {
@@ -5432,10 +5525,12 @@
                     } else {
                         canEdit = true; // يستطيعون تعديل مادتهم فقط للطلاب النظاميين
                     }
+                    
+                    if (canEdit) {
+                        readOnlyClass = '';
+                        readOnlyAttr = '';
+                    }
                 }
-                
-                const readOnlyClass = canEdit ? '' : 'readonly-grade';
-                const readOnlyAttr = canEdit ? '' : 'readonly';
                 
                 tableHTML += `
                     <tr data-student-id="${studentId}" data-subject="${subject}">
@@ -5443,13 +5538,13 @@
                         
                         <!-- الفصل الأول -->
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small first-month1 ${readOnlyClass}" 
                                    value="${subjectGrades.firstTerm.month1 || ''}"
                                    data-term="first" data-type="month1" ${readOnlyAttr}>
                         </td>
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small first-month2 ${readOnlyClass}" 
                                    value="${subjectGrades.firstTerm.month2 || ''}"
                                    data-term="first" data-type="month2" ${readOnlyAttr}>
@@ -5460,7 +5555,7 @@
                             </span>
                         </td>
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small first-daily ${readOnlyClass}" 
                                    value="${subjectGrades.firstTerm.daily || ''}"
                                    data-term="first" data-type="daily" ${readOnlyAttr}>
@@ -5471,7 +5566,7 @@
                             </span>
                         </td>
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small first-midterm ${readOnlyClass}" 
                                    value="${subjectGrades.firstTerm.midterm || ''}"
                                    data-term="first" data-type="midterm" ${readOnlyAttr}>
@@ -5479,13 +5574,13 @@
                         
                         <!-- الفصل الثاني -->
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small second-month1 ${readOnlyClass}" 
                                    value="${subjectGrades.secondTerm.month1 || ''}"
                                    data-term="second" data-type="month1" ${readOnlyAttr}>
                         </td>
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small second-month2 ${readOnlyClass}" 
                                    value="${subjectGrades.secondTerm.month2 || ''}"
                                    data-term="second" data-type="month2" ${readOnlyAttr}>
@@ -5496,7 +5591,7 @@
                             </span>
                         </td>
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small second-daily ${readOnlyClass}" 
                                    value="${subjectGrades.secondTerm.daily || ''}"
                                    data-term="second" data-type="daily" ${readOnlyAttr}>
@@ -5507,7 +5602,7 @@
                             </span>
                         </td>
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small second-final ${readOnlyClass}" 
                                    value="${subjectGrades.secondTerm.final || ''}"
                                    data-term="second" data-type="final" ${readOnlyAttr}>
@@ -5515,7 +5610,7 @@
                         
                         <!-- المعدل النهائي -->
                         <td>
-                            <input type="text" pattern="[0-9٠-٩]*" 
+                            <input type="text" 
                                    class="grade-input-small final-average-input ${readOnlyClass}" 
                                    value="${finalAverage}"
                                    data-type="finalAverage" ${readOnlyAttr}>
@@ -5526,13 +5621,6 @@
             
             tableHTML += '</tbody>';
             allGradesTable.innerHTML = tableHTML;
-            
-            // إخفاء زر حفظ للمشاهدين
-            if (currentUser.type === 'viewer') {
-                document.getElementById('saveAllGradesBtn').style.display = 'none';
-            } else {
-                document.getElementById('saveAllGradesBtn').style.display = 'flex';
-            }
             
             document.getElementById('studentsSection').style.display = 'none';
             document.getElementById('addStudentSection').style.display = 'none';
@@ -5548,8 +5636,12 @@
         function setupAllGradeInputListeners() {
             document.querySelectorAll('.grade-input-small:not(.readonly-grade)').forEach(input => {
                 input.addEventListener('input', function() {
-                    // التحقق من أن المدخل يحتوي على أرقام فقط (إنجليزية أو عربية)
-                    this.value = this.value.replace(/[^0-9٠-٩]/g, '');
+                    // السماح بالأرقام والحرف "غ" فقط
+                    const value = this.value;
+                    if (value !== 'غ' && !isValidGrade(value)) {
+                        // إزالة الأحرف غير المسموحة
+                        this.value = value.replace(/[^0-9٠-٩غ]/g, '');
+                    }
                     
                     const row = this.closest('tr');
                     const term = this.getAttribute('data-term');
@@ -5567,6 +5659,15 @@
                 });
                 
                 input.addEventListener('change', function() {
+                    // التحقق من صحة الدرجة
+                    const value = this.value;
+                    if (value && value !== 'غ' && !isValidGrade(value)) {
+                        showNotification('warning', 'الدرجة يجب أن تكون بين 0 و 100 أو حرف "غ" للغياب');
+                        this.value = '';
+                        this.focus();
+                        return;
+                    }
+                    
                     const row = this.closest('tr');
                     const term = this.getAttribute('data-term');
                     const type = this.getAttribute('data-type');
@@ -5597,18 +5698,27 @@
             let month2Val = convertArabicToEnglishNumber(month2Input.value);
             let dailyVal = convertArabicToEnglishNumber(dailyInput.value);
             
+            // إذا كان هناك حرف "غ" في أي حقل، لا نحسب المجاميع
+            if (month1Input.value === 'غ' || month2Input.value === 'غ' || dailyInput.value === 'غ') {
+                monthlySumSpan.textContent = 'غ';
+                monthlyAverageSpan.textContent = 'غ';
+                monthlyAverageSpan.className = `grade-value-small grade-absent ${term}-monthly-average`;
+                return;
+            }
+            
             const month1 = parseInt(month1Val) || 0;
             const month2 = parseInt(month2Val) || 0;
             const daily = parseInt(dailyVal) || 0;
             
             // حساب مجموع الشهرين
             let monthlySum = '';
+            // التصحيح: الآن نقسم على 2 حتى لو كان أحد الشهرين 0
             if (month1 > 0 && month2 > 0) {
                 monthlySum = Math.round((month1 + month2) / 2);
             } else if (month1 > 0 && month2 === 0) {
-                monthlySum = month1;
+                monthlySum = Math.round(month1 / 2);
             } else if (month1 === 0 && month2 > 0) {
-                monthlySum = month2;
+                monthlySum = Math.round(month2 / 2);
             }
             
             // حساب السعي
@@ -5640,7 +5750,7 @@
         // حفظ درجات الطلاب المعدلين فقط
         async function saveAllGrades() {
             // التحقق من الصلاحيات
-            if (currentUser.type === 'viewer') {
+            if (currentUser.type === 'admin' || currentUser.type === 'viewer') {
                 showNotification('error', 'ليس لديك صلاحية لتعديل الدرجات');
                 return;
             }
@@ -5738,67 +5848,85 @@
                     };
                 }
                 
-                // تحويل الأرقام العربية إلى إنجليزية قبل الحفظ
-                const month1First = convertArabicToEnglishNumber(row.querySelector('.first-month1').value);
-                const month2First = convertArabicToEnglishNumber(row.querySelector('.first-month2').value);
-                const dailyFirst = convertArabicToEnglishNumber(row.querySelector('.first-daily').value);
-                const midterm = convertArabicToEnglishNumber(row.querySelector('.first-midterm').value);
+                // الحصول على القيم من الحقول
+                const month1First = row.querySelector('.first-month1').value;
+                const month2First = row.querySelector('.first-month2').value;
+                const dailyFirst = row.querySelector('.first-daily').value;
+                const midterm = row.querySelector('.first-midterm').value;
                 
-                const month1Second = convertArabicToEnglishNumber(row.querySelector('.second-month1').value);
-                const month2Second = convertArabicToEnglishNumber(row.querySelector('.second-month2').value);
-                const dailySecond = convertArabicToEnglishNumber(row.querySelector('.second-daily').value);
-                const final = convertArabicToEnglishNumber(row.querySelector('.second-final').value);
+                const month1Second = row.querySelector('.second-month1').value;
+                const month2Second = row.querySelector('.second-month2').value;
+                const dailySecond = row.querySelector('.second-daily').value;
+                const final = row.querySelector('.second-final').value;
                 
-                const finalAverage = convertArabicToEnglishNumber(row.querySelector('.final-average-input').value);
+                const finalAverage = row.querySelector('.final-average-input').value;
                 
-                // حساب مجموع الشهرين
+                // حساب مجموع الشهرين - التصحيح: الآن نقسم على 2 حتى لو كان أحد الشهرين 0 أو "غ"
                 let monthlySumFirst = '';
                 if (month1First && month2First) {
-                    const num1 = parseInt(month1First) || 0;
-                    const num2 = parseInt(month2First) || 0;
-                    monthlySumFirst = Math.round((num1 + num2) / 2);
+                    const num1 = parseInt(convertArabicToEnglishNumber(month1First)) || 0;
+                    const num2 = parseInt(convertArabicToEnglishNumber(month2First)) || 0;
+                    
+                    if (month1First === 'غ' && month2First !== 'غ') {
+                        monthlySumFirst = Math.round(num2 / 2);
+                    } else if (month2First === 'غ' && month1First !== 'غ') {
+                        monthlySumFirst = Math.round(num1 / 2);
+                    } else if (month1First !== 'غ' && month2First !== 'غ') {
+                        monthlySumFirst = Math.round((num1 + num2) / 2);
+                    }
                 } else if (month1First && !month2First) {
-                    monthlySumFirst = parseInt(month1First) || '';
+                    monthlySumFirst = month1First === 'غ' ? 'غ' : month1First;
                 } else if (!month1First && month2First) {
-                    monthlySumFirst = parseInt(month2First) || '';
+                    monthlySumFirst = month2First === 'غ' ? 'غ' : month2First;
                 }
                 
                 let monthlySumSecond = '';
                 if (month1Second && month2Second) {
-                    const num1 = parseInt(month1Second) || 0;
-                    const num2 = parseInt(month2Second) || 0;
-                    monthlySumSecond = Math.round((num1 + num2) / 2);
+                    const num1 = parseInt(convertArabicToEnglishNumber(month1Second)) || 0;
+                    const num2 = parseInt(convertArabicToEnglishNumber(month2Second)) || 0;
+                    
+                    if (month1Second === 'غ' && month2Second !== 'غ') {
+                        monthlySumSecond = Math.round(num2 / 2);
+                    } else if (month2Second === 'غ' && month1Second !== 'غ') {
+                        monthlySumSecond = Math.round(num1 / 2);
+                    } else if (month1Second !== 'غ' && month2Second !== 'غ') {
+                        monthlySumSecond = Math.round((num1 + num2) / 2);
+                    }
                 } else if (month1Second && !month2Second) {
-                    monthlySumSecond = parseInt(month1Second) || '';
+                    monthlySumSecond = month1Second === 'غ' ? 'غ' : month1Second;
                 } else if (!month1Second && month2Second) {
-                    monthlySumSecond = parseInt(month2Second) || '';
+                    monthlySumSecond = month2Second === 'غ' ? 'غ' : month2Second;
                 }
                 
                 // حساب السعي
                 let monthlyAverageFirst = '';
-                if (monthlySumFirst && dailyFirst) {
-                    const sum = parseInt(monthlySumFirst);
-                    const daily = parseInt(dailyFirst);
+                if (monthlySumFirst && dailyFirst && monthlySumFirst !== 'غ' && dailyFirst !== 'غ') {
+                    const sum = parseInt(convertArabicToEnglishNumber(monthlySumFirst));
+                    const daily = parseInt(convertArabicToEnglishNumber(dailyFirst));
                     if (!isNaN(sum) && !isNaN(daily)) {
                         monthlyAverageFirst = Math.round((sum + daily) / 2);
                     }
-                } else if (monthlySumFirst && !dailyFirst) {
+                } else if (monthlySumFirst && !dailyFirst && monthlySumFirst !== 'غ') {
                     monthlyAverageFirst = monthlySumFirst;
-                } else if (!monthlySumFirst && dailyFirst) {
+                } else if (!monthlySumFirst && dailyFirst && dailyFirst !== 'غ') {
                     monthlyAverageFirst = dailyFirst;
+                } else if (monthlySumFirst === 'غ' || dailyFirst === 'غ') {
+                    monthlyAverageFirst = 'غ';
                 }
                 
                 let monthlyAverageSecond = '';
-                if (monthlySumSecond && dailySecond) {
-                    const sum = parseInt(monthlySumSecond);
-                    const daily = parseInt(dailySecond);
+                if (monthlySumSecond && dailySecond && monthlySumSecond !== 'غ' && dailySecond !== 'غ') {
+                    const sum = parseInt(convertArabicToEnglishNumber(monthlySumSecond));
+                    const daily = parseInt(convertArabicToEnglishNumber(dailySecond));
                     if (!isNaN(sum) && !isNaN(daily)) {
                         monthlyAverageSecond = Math.round((sum + daily) / 2);
                     }
-                } else if (monthlySumSecond && !dailySecond) {
+                } else if (monthlySumSecond && !dailySecond && monthlySumSecond !== 'غ') {
                     monthlyAverageSecond = monthlySumSecond;
-                } else if (!monthlySumSecond && dailySecond) {
+                } else if (!monthlySumSecond && dailySecond && dailySecond !== 'غ') {
                     monthlyAverageSecond = dailySecond;
+                } else if (monthlySumSecond === 'غ' || dailySecond === 'غ') {
+                    monthlyAverageSecond = 'غ';
                 }
                 
                 // تسجيل التغييرات
@@ -5905,6 +6033,523 @@
             }
         }
         
+        // ========== دالة طباعة الدرجات ==========
+        function printAllGrades() {
+            // تحديد نوع الطباعة
+            if (!currentClass || !currentDivision) {
+                showNotification('warning', 'لم يتم تحديد صف أو شعبة للطباعة');
+                return;
+            }
+            
+            const printWindow = window.open('', '_blank');
+            
+            // الحصول على جميع الطلاب في هذا الصف والشعبة
+            let filteredStudents = students.filter(student => 
+                student.class === currentClass && 
+                student.division === currentDivision
+            );
+            
+            // ترتيب الطلاب أبجدياً
+            filteredStudents = sortStudentsAlphabetically(filteredStudents);
+            
+            if (filteredStudents.length === 0) {
+                showNotification('warning', 'لا يوجد طلاب في هذا الصف والشعبة');
+                return;
+            }
+            
+            let classText = '';
+            if (currentClass === '4' || currentClass === '4enrollment') {
+                classText = currentClass === '4enrollment' ? 'انتساب الرابع العلمي' : 'الرابع العلمي';
+            } else if (currentClass === '5' || currentClass === '5enrollment') {
+                classText = currentClass === '5enrollment' ? 'انتساب الخامس العلمي' : 'الخامس العلمي';
+            } else if (currentClass === '6' || currentClass === '6enrollment') {
+                classText = currentClass === '6enrollment' ? 'انتساب السادس العلمي' : 'السادس العلمي';
+            }
+            
+            let subjectText = currentUser.subject;
+            if (currentUser.type === 'admin') {
+                subjectText = 'جميع المواد';
+            }
+            
+            // إنشاء محتوى الطباعة
+            let printContent = `
+                <!DOCTYPE html>
+                <html dir="rtl" lang="ar">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>درجات الطلاب - ${classText} - الشعبة ${currentDivision}</title>
+                    <style>
+                        body { 
+                            font-family: 'Cairo', sans-serif; 
+                            margin: 20px; 
+                            direction: rtl;
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 30px; 
+                            border-bottom: 2px solid #4169E1;
+                            padding-bottom: 20px;
+                        }
+                        .header h1 { 
+                            color: #4169E1; 
+                            margin-bottom: 5px; 
+                            font-size: 24px;
+                        }
+                        .header h2 { 
+                            color: #333; 
+                            margin-bottom: 10px;
+                            font-size: 18px;
+                        }
+                        .header-info {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-top: 15px;
+                            font-size: 14px;
+                            color: #666;
+                        }
+                        .grades-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                            font-size: 12px;
+                        }
+                        .grades-table th {
+                            background-color: #f0f7ff;
+                            padding: 8px;
+                            text-align: center;
+                            color: #4169E1;
+                            font-weight: 600;
+                            border: 1px solid #ddd;
+                            font-size: 11px;
+                        }
+                        .grades-table td {
+                            padding: 8px;
+                            text-align: center;
+                            border: 1px solid #ddd;
+                        }
+                        .grades-table tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                        .student-name-col {
+                            background-color: #f8f9fa;
+                            font-weight: 600;
+                            min-width: 150px;
+                        }
+                        .subject-header {
+                            background-color: #e6f0ff !important;
+                            font-weight: 700;
+                        }
+                        .term-header {
+                            background-color: #f0f7ff !important;
+                            font-weight: 700;
+                        }
+                        .grade-excellent {
+                            background-color: #e8f5e9;
+                            color: #2e7d32;
+                            font-weight: bold;
+                        }
+                        .grade-average {
+                            background-color: #ffffff;
+                            color: #333;
+                        }
+                        .grade-fail {
+                            background-color: #ffebee;
+                            color: #c62828;
+                            font-weight: bold;
+                        }
+                        .grade-absent {
+                            background-color: #ffebee;
+                            color: #d32f2f;
+                            font-weight: bold;
+                        }
+                        .footer {
+                            margin-top: 50px;
+                            text-align: center;
+                            color: #666;
+                            font-size: 12px;
+                            border-top: 1px solid #ddd;
+                            padding-top: 20px;
+                        }
+                        @media print {
+                            body { margin: 0; padding: 10px; }
+                            .header { page-break-after: avoid; }
+                            .grades-table { page-break-inside: avoid; }
+                        }
+                        @page {
+                            size: A4 landscape;
+                            margin: 10mm;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>إعدادية المجر الكبير للبنين</h1>
+                        <h2>درجات الطلاب - ${classText} - الشعبة ${currentDivision}</h2>
+                        <div class="header-info">
+                            <div>المادة: ${subjectText}</div>
+                            <div>عدد الطلاب: ${filteredStudents.length}</div>
+                            <div>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</div>
+                        </div>
+                    </div>
+            `;
+            
+            // إذا كان المستخدم مدرساً، نطبع فقط المادة الخاصة به
+            if (currentUser.type === 'teacher') {
+                printContent += `
+                    <table class="grades-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="student-name-col">اسم الطالب</th>
+                                <th colspan="6" class="term-header">الفصل الأول</th>
+                                <th colspan="6" class="term-header">الفصل الثاني</th>
+                                <th rowspan="2" class="subject-header">المعدل النهائي</th>
+                            </tr>
+                            <tr>
+                                <th>امتحان الشهر الأول</th>
+                                <th>امتحان الشهر الثاني</th>
+                                <th>مجموع الشهرين</th>
+                                <th>اليومي</th>
+                                <th>السعي</th>
+                                <th>نصف السنة</th>
+                                <th>امتحان الشهر الأول</th>
+                                <th>امتحان الشهر الثاني</th>
+                                <th>مجموع الشهرين</th>
+                                <th>اليومي</th>
+                                <th>السعي</th>
+                                <th>اختبار نهاية السنة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                filteredStudents.forEach((student, index) => {
+                    const subject = currentUser.subject;
+                    const subjectGrades = student.grades[subject] || {
+                        firstTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', midterm: '' },
+                        secondTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', final: '' },
+                        finalAverage: ''
+                    };
+                    
+                    // حساب المجاميع
+                    const month1First = subjectGrades.firstTerm.month1 || '';
+                    const month2First = subjectGrades.firstTerm.month2 || '';
+                    let firstTermMonthlySum = subjectGrades.firstTerm.monthlySum || '';
+                    
+                    const month1Second = subjectGrades.secondTerm.month1 || '';
+                    const month2Second = subjectGrades.secondTerm.month2 || '';
+                    let secondTermMonthlySum = subjectGrades.secondTerm.monthlySum || '';
+                    
+                    const dailyFirst = subjectGrades.firstTerm.daily || '';
+                    let firstTermMonthlyAverage = subjectGrades.firstTerm.monthlyAverage || '';
+                    
+                    const dailySecond = subjectGrades.secondTerm.daily || '';
+                    let secondTermMonthlyAverage = subjectGrades.secondTerm.monthlyAverage || '';
+                    
+                    const finalAverage = subjectGrades.finalAverage || '';
+                    
+                    const getGradeClass = (grade) => {
+                        if (!grade) return 'grade-average';
+                        if (grade === 'غ') return 'grade-absent';
+                        const numGrade = parseInt(convertArabicToEnglishNumber(grade));
+                        if (isNaN(numGrade)) return 'grade-average';
+                        if (numGrade >= 70) return 'grade-excellent';
+                        if (numGrade >= 50) return 'grade-average';
+                        return 'grade-fail';
+                    };
+                    
+                    const finalGradeClass = getGradeClass(finalAverage);
+                    const firstMonthlyClass = getGradeClass(firstTermMonthlyAverage);
+                    const secondMonthlyClass = getGradeClass(secondTermMonthlyAverage);
+                    
+                    printContent += `
+                        <tr>
+                            <td class="student-name-col">${index + 1}. ${student.name}</td>
+                            <td>${month1First}</td>
+                            <td>${month2First}</td>
+                            <td>${firstTermMonthlySum}</td>
+                            <td>${dailyFirst}</td>
+                            <td class="${firstMonthlyClass}">${firstTermMonthlyAverage}</td>
+                            <td>${subjectGrades.firstTerm.midterm || ''}</td>
+                            <td>${month1Second}</td>
+                            <td>${month2Second}</td>
+                            <td>${secondTermMonthlySum}</td>
+                            <td>${dailySecond}</td>
+                            <td class="${secondMonthlyClass}">${secondTermMonthlyAverage}</td>
+                            <td>${subjectGrades.secondTerm.final || ''}</td>
+                            <td class="${finalGradeClass}">${finalAverage}</td>
+                        </tr>
+                    `;
+                });
+                
+                printContent += `
+                        </tbody>
+                    </table>
+                `;
+            } else if (currentUser.type === 'admin') {
+                // للمدير، نطبع جميع المواد
+                const subjects = subjectsByClass[currentClass] || [];
+                
+                subjects.forEach(subject => {
+                    printContent += `
+                        <h3 style="color: #4169E1; margin-top: 30px; margin-bottom: 15px; text-align: center;">مادة: ${subject}</h3>
+                        <table class="grades-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="student-name-col">اسم الطالب</th>
+                                    <th colspan="6" class="term-header">الفصل الأول</th>
+                                    <th colspan="6" class="term-header">الفصل الثاني</th>
+                                    <th rowspan="2" class="subject-header">المعدل النهائي</th>
+                                </tr>
+                                <tr>
+                                    <th>امتحان الشهر الأول</th>
+                                    <th>امتحان الشهر الثاني</th>
+                                    <th>مجموع الشهرين</th>
+                                    <th>اليومي</th>
+                                    <th>السعي</th>
+                                    <th>نصف السنة</th>
+                                    <th>امتحان الشهر الأول</th>
+                                    <th>امتحان الشهر الثاني</th>
+                                    <th>مجموع الشهرين</th>
+                                    <th>اليومي</th>
+                                    <th>السعي</th>
+                                    <th>اختبار نهاية السنة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    filteredStudents.forEach((student, index) => {
+                        const subjectGrades = student.grades[subject] || {
+                            firstTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', midterm: '' },
+                            secondTerm: { month1: '', month2: '', monthlySum: '', daily: '', monthlyAverage: '', final: '' },
+                            finalAverage: ''
+                        };
+                        
+                        // حساب المجاميع
+                        const month1First = subjectGrades.firstTerm.month1 || '';
+                        const month2First = subjectGrades.firstTerm.month2 || '';
+                        let firstTermMonthlySum = subjectGrades.firstTerm.monthlySum || '';
+                        
+                        const month1Second = subjectGrades.secondTerm.month1 || '';
+                        const month2Second = subjectGrades.secondTerm.month2 || '';
+                        let secondTermMonthlySum = subjectGrades.secondTerm.monthlySum || '';
+                        
+                        const dailyFirst = subjectGrades.firstTerm.daily || '';
+                        let firstTermMonthlyAverage = subjectGrades.firstTerm.monthlyAverage || '';
+                        
+                        const dailySecond = subjectGrades.secondTerm.daily || '';
+                        let secondTermMonthlyAverage = subjectGrades.secondTerm.monthlyAverage || '';
+                        
+                        const finalAverage = subjectGrades.finalAverage || '';
+                        
+                        const getGradeClass = (grade) => {
+                            if (!grade) return 'grade-average';
+                            if (grade === 'غ') return 'grade-absent';
+                            const numGrade = parseInt(convertArabicToEnglishNumber(grade));
+                            if (isNaN(numGrade)) return 'grade-average';
+                            if (numGrade >= 70) return 'grade-excellent';
+                            if (numGrade >= 50) return 'grade-average';
+                            return 'grade-fail';
+                        };
+                        
+                        const finalGradeClass = getGradeClass(finalAverage);
+                        const firstMonthlyClass = getGradeClass(firstTermMonthlyAverage);
+                        const secondMonthlyClass = getGradeClass(secondTermMonthlyAverage);
+                        
+                        printContent += `
+                            <tr>
+                                <td class="student-name-col">${index + 1}. ${student.name}</td>
+                                <td>${month1First}</td>
+                                <td>${month2First}</td>
+                                <td>${firstTermMonthlySum}</td>
+                                <td>${dailyFirst}</td>
+                                <td class="${firstMonthlyClass}">${firstTermMonthlyAverage}</td>
+                                <td>${subjectGrades.firstTerm.midterm || ''}</td>
+                                <td>${month1Second}</td>
+                                <td>${month2Second}</td>
+                                <td>${secondTermMonthlySum}</td>
+                                <td>${dailySecond}</td>
+                                <td class="${secondMonthlyClass}">${secondTermMonthlyAverage}</td>
+                                <td>${subjectGrades.secondTerm.final || ''}</td>
+                                <td class="${finalGradeClass}">${finalAverage}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    printContent += `
+                            </tbody>
+                        </table>
+                    `;
+                });
+            }
+            
+            printContent += `
+                    <div class="footer">
+                        <p><strong>ملاحظات:</strong></p>
+                        <p>1. الدرجات بين 0 و 100، حرف "غ" يعني غياب</p>
+                        <p>2. السعي = (مجموع الشهرين + اليومي) ÷ 2</p>
+                        <p>3. الطباعة من نظام إدارة درجات الطلاب - إعدادية المجر الكبير للبنين</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+            
+            showNotification('success', 'تم فتح نافذة الطباعة');
+        }
+        
+        // ========== دالة طباعة درجات طالب واحد ==========
+        function printStudentGrades() {
+            const studentName = document.getElementById('profileStudentName').textContent;
+            const classInfo = document.getElementById('profileClassInfo').textContent;
+            
+            const printWindow = window.open('', '_blank');
+            
+            let printContent = `
+                <!DOCTYPE html>
+                <html dir="rtl" lang="ar">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>درجات الطالب - ${studentName}</title>
+                    <style>
+                        body { 
+                            font-family: 'Cairo', sans-serif; 
+                            margin: 20px; 
+                            direction: rtl;
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 30px; 
+                            border-bottom: 2px solid #4169E1;
+                            padding-bottom: 20px;
+                        }
+                        .header h1 { 
+                            color: #4169E1; 
+                            margin-bottom: 5px; 
+                            font-size: 24px;
+                        }
+                        .header h2 { 
+                            color: #333; 
+                            margin-bottom: 10px;
+                            font-size: 18px;
+                        }
+                        .header-info {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-top: 15px;
+                            font-size: 14px;
+                            color: #666;
+                        }
+                        .grades-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                            font-size: 12px;
+                        }
+                        .grades-table th {
+                            background-color: #f0f7ff;
+                            padding: 8px;
+                            text-align: center;
+                            color: #4169E1;
+                            font-weight: 600;
+                            border: 1px solid #ddd;
+                            font-size: 11px;
+                        }
+                        .grades-table td {
+                            padding: 8px;
+                            text-align: center;
+                            border: 1px solid #ddd;
+                        }
+                        .grades-table tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                        .student-name-col {
+                            background-color: #f8f9fa;
+                            font-weight: 600;
+                            min-width: 150px;
+                        }
+                        .subject-header {
+                            background-color: #e6f0ff !important;
+                            font-weight: 700;
+                        }
+                        .term-header {
+                            background-color: #f0f7ff !important;
+                            font-weight: 700;
+                        }
+                        .grade-excellent {
+                            background-color: #e8f5e9;
+                            color: #2e7d32;
+                            font-weight: bold;
+                        }
+                        .grade-average {
+                            background-color: #ffffff;
+                            color: #333;
+                        }
+                        .grade-fail {
+                            background-color: #ffebee;
+                            color: #c62828;
+                            font-weight: bold;
+                        }
+                        .grade-absent {
+                            background-color: #ffebee;
+                            color: #d32f2f;
+                            font-weight: bold;
+                        }
+                        .footer {
+                            margin-top: 50px;
+                            text-align: center;
+                            color: #666;
+                            font-size: 12px;
+                            border-top: 1px solid #ddd;
+                            padding-top: 20px;
+                        }
+                        @media print {
+                            body { margin: 0; padding: 10px; }
+                            .header { page-break-after: avoid; }
+                            .grades-table { page-break-inside: avoid; }
+                        }
+                        @page {
+                            size: A4 landscape;
+                            margin: 10mm;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>إعدادية المجر الكبير للبنين</h1>
+                        <h2>درجات الطالب: ${studentName}</h2>
+                        <div class="header-info">
+                            <div>${classInfo}</div>
+                            <div>تاريخ الطباعة: ${new Date().toLocaleDateString('ar-EG')}</div>
+                        </div>
+                    </div>
+            `;
+            
+            // الحصول على محتوى جدول درجات الطالب
+            const table = document.getElementById('studentProfileTable');
+            printContent += table.outerHTML;
+            
+            printContent += `
+                    <div class="footer">
+                        <p><strong>ملاحظات:</strong></p>
+                        <p>1. الدرجات بين 0 و 100، حرف "غ" يعني غياب</p>
+                        <p>2. السعي = (مجموع الشهرين + اليومي) ÷ 2</p>
+                        <p>3. الطباعة من نظام إدارة درجات الطلاب - إعدادية المجر الكبير للبنين</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+            
+            showNotification('success', 'تم فتح نافذة الطباعة');
+        }
+        
         // ========== تهيئة التطبيق ==========
         function initializeApp() {
             // تحميل البيانات من التخزين المحلي أولاً
@@ -5984,10 +6629,16 @@
                 showClassGrades(selectedClass, selectedDivision);
             });
             
+            // زر طباعة الدرجات في قسم عرض الدرجات
+            document.getElementById('printAllGradesBtn').addEventListener('click', printAllGrades);
+            
+            // زر طباعة درجات الطالب في صفحة الطالب الشخصية
+            document.getElementById('printStudentGradesBtn').addEventListener('click', printStudentGrades);
+            
             // رفع البيانات إلى السيرفر - تم التصحيح
             document.getElementById('uploadToServerBtn').addEventListener('click', uploadToServer);
             
-            // استيراد البيانات من السيرفر
+            // استيراد البيانات من السيرفر - وظيفته موجودة ويعمل الآن
             document.getElementById('downloadFromServerBtn').addEventListener('click', downloadFromServer);
             
             // وضع الموبايل في الهيدر
@@ -6580,6 +7231,9 @@
         window.showClassGrades = showClassGrades;
         window.showDeleteModal = showDeleteModal;
         window.showStudentProfile = showStudentProfile;
+        window.showStudentGrades = showStudentGrades;
+        window.printAllGrades = printAllGrades;
+        window.printStudentGrades = printStudentGrades;
     </script>
 </body>
 </html>
