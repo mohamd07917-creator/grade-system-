@@ -2101,10 +2101,11 @@
             <button class="btn btn-info" id="bulkImportBtn">
                 <i class="fas fa-file-import"></i> استيراد أسماء دفعة واحدة
             </button>
+            <!-- زر رفع البيانات إلى السيرفر - يظهر لجميع المستخدمين -->
             <button class="btn btn-info" id="uploadToServerBtn">
                 <i class="fas fa-cloud-upload-alt"></i> رفع البيانات إلى السيرفر
             </button>
-            <!-- زر استيراد البيانات من السيرفر - تم إصلاح المشكلة -->
+            <!-- زر استيراد البيانات من السيرفر - يظهر لجميع المستخدمين -->
             <button class="btn btn-info" id="downloadFromServerBtn">
                 <i class="fas fa-cloud-download-alt"></i> استيراد البيانات من السيرفر
             </button>
@@ -3254,7 +3255,7 @@
                 document.getElementById('currentUserName').textContent = user.name;
                 document.getElementById('userRoleText').textContent = user.role;
                 
-                // التحكم في إظهار الأزرار حسب الصلاحيات
+                // التحكم في إظهار الأزرار حسب الصلاحيات - التصحيح المطلوب هنا
                 if (user.type === 'admin') {
                     document.getElementById('manageCodesBtn').style.display = 'flex';
                     document.getElementById('notificationsHeaderBtn').style.display = 'flex';
@@ -3263,8 +3264,10 @@
                     document.getElementById('bulkImportBtn').style.display = 'flex';
                     document.getElementById('deleteAllBtn').style.display = 'flex';
                     document.getElementById('backupBtn').style.display = 'flex';
+                    // زر رفع البيانات إلى السيرفر يظهر للمدير
                     document.getElementById('uploadToServerBtn').style.display = 'flex';
-                    document.getElementById('downloadFromServerBtn').style.display = 'flex'; // إظهار الزر للمدير
+                    // زر استيراد البيانات من السيرفر يظهر للمدير
+                    document.getElementById('downloadFromServerBtn').style.display = 'flex';
                     updateNotificationBadge();
                 } else if (user.type === 'teacher') {
                     document.getElementById('manageCodesBtn').style.display = 'none';
@@ -3274,9 +3277,10 @@
                     document.getElementById('bulkImportBtn').style.display = 'none';
                     document.getElementById('deleteAllBtn').style.display = 'none';
                     document.getElementById('backupBtn').style.display = 'none';
-                    document.getElementById('uploadToServerBtn').style.display = 'none';
-                    // إظهار زر استيراد البيانات من السيرفر للمدرسين - التعديل المطلوب
-                    document.getElementById('downloadFromServerBtn').style.display = 'flex'; // إصلاح: إظهار الزر للمدرسين
+                    // زر رفع البيانات إلى السيرفر يظهر للمدرسين
+                    document.getElementById('uploadToServerBtn').style.display = 'flex';
+                    // زر استيراد البيانات من السيرفر يظهر للمدرسين
+                    document.getElementById('downloadFromServerBtn').style.display = 'flex';
                 } else if (user.type === 'viewer') {
                     document.getElementById('manageCodesBtn').style.display = 'none';
                     document.getElementById('notificationsHeaderBtn').style.display = 'none';
@@ -3285,8 +3289,9 @@
                     document.getElementById('bulkImportBtn').style.display = 'none';
                     document.getElementById('deleteAllBtn').style.display = 'none';
                     document.getElementById('backupBtn').style.display = 'none';
-                    document.getElementById('uploadToServerBtn').style.display = 'none';
-                    // تمكين زر استيراد البيانات من السيرفر للمشاهدين
+                    // زر رفع البيانات إلى السيرفر يظهر للمشاهدين
+                    document.getElementById('uploadToServerBtn').style.display = 'flex';
+                    // زر استيراد البيانات من السيرفر يظهر للمشاهدين
                     document.getElementById('downloadFromServerBtn').style.display = 'flex';
                 }
                 
@@ -6635,10 +6640,10 @@
             // زر طباعة درجات الطالب في صفحة الطالب الشخصية
             document.getElementById('printStudentGradesBtn').addEventListener('click', printStudentGrades);
             
-            // رفع البيانات إلى السيرفر - تم التصحيح
+            // رفع البيانات إلى السيرفر - يظهر لجميع المستخدمين الآن
             document.getElementById('uploadToServerBtn').addEventListener('click', uploadToServer);
             
-            // استيراد البيانات من السيرفر - وظيفته موجودة ويعمل الآن
+            // استيراد البيانات من السيرفر - يظهر لجميع المستخدمين
             document.getElementById('downloadFromServerBtn').addEventListener('click', downloadFromServer);
             
             // وضع الموبايل في الهيدر
@@ -7236,4 +7241,4 @@
         window.printStudentGrades = printStudentGrades;
     </script>
 </body>
-</html>
+                    </html>
