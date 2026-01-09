@@ -1,0 +1,11 @@
+// أضف هذه السطور إلى ملف index.html الحالي
+// هذا سيحول موقعك إلى تطبيق يمكن تثبيته على الهاتف
+
+// إضافة manifest.json لـ PWA
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4169E1">
+
+// إضافة service worker للتخزين المؤقت
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+}
