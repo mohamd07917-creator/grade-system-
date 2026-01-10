@@ -4,20 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة درجات الطلاب - إعدادية المجر الكبير للبنين</title>
-	<!-- === إعدادات PWA === -->
-<meta name="theme-color" content="#4169E1">
-<meta name="description" content="نظام إدارة درجات الطلاب - إعدادية المجر الكبير للبنين">
-<meta name="application-name" content="نظام إدارة درجات الطلاب">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="نظام إدارة درجات الطلاب">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
-<link rel="apple-touch-icon" href="icons/icon-192x192.png">
-<!-- === نهاية إعدادات PWA === -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- إضافة Firebase -->
@@ -3944,84 +3930,7 @@
                         <p>1. هذه الأكواد سرية، يرجى حفظها في مكان آمن</p>
                         <p>2. يتم تحديث الأكواد من قبل مدير النظام فقط</p>
                         <p>3. في حالة فقدان الكود، يرجى التواصل مع المدير</p>
-                   
-			     </div>
-				 <script>
-// ========== تسجيل Service Worker ==========
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js')
-            .then(function(registration) {
-                console.log('Service Worker مسجل بنجاح: ', registration.scope);
-                
-                // التحقق من وجود تحديثات
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    console.log('تم العثور على تحديث جديد!');
-                    
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            showNotification('info', 'تحديث جديد متاح. أعد تحميل الصفحة للحصول على أحدث إصدار.', 5000);
-                        }
-                    });
-                });
-            })
-            .catch(function(error) {
-                console.log('فشل تسجيل Service Worker: ', error);
-            });
-    });
-}
-
-// ========== تثبيت PWA ==========
-let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    setTimeout(() => {
-        if (deferredPrompt && confirm('هل تريد تثبيت التطبيق على جهازك للوصول السريع؟')) {
-            showPWAInstallPrompt();
-        }
-    }, 10000); // بعد 10 ثواني
-});
-
-function showPWAInstallPrompt() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('تم قبول تثبيت التطبيق');
-                showNotification('success', 'تم تثبيت التطبيق بنجاح!', 3000);
-            } else {
-                console.log('تم رفض تثبيت التطبيق');
-            }
-            deferredPrompt = null;
-        });
-    }
-}
-
-window.addEventListener('appinstalled', () => {
-    console.log('تم تثبيت PWA');
-    showNotification('success', 'تم تثبيت التطبيق بنجاح!', 3000);
-});
-
-// ========== التحقق من وضع PWA ==========
-function checkPWAInstallation() {
-    if (window.matchMedia('(display-mode: standalone)').matches || 
-        window.matchMedia('(display-mode: fullscreen)').matches ||
-        window.matchMedia('(display-mode: minimal-ui)').matches) {
-        console.log("التطبيق يعمل كـ PWA مثبت");
-    }
-}
-
-// استدعاء التحقق عند التحميل
-document.addEventListener('DOMContentLoaded', function() {
-    checkPWAInstallation();
-    // ... باقي الكود الحالي
-});
-</script>
+                    </div>
                 </body>
                 </html>
             `;
