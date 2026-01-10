@@ -1,12 +1,10 @@
 {
-  "name": "نظام إدارة درجات الطلاب - إعدادية المجر الكبير",
-  "short_name": "درجات الطلاب",
-  "description": "نظام متكامل لإدارة درجات الطلاب والمتابعة الأكاديمية",
-  "start_url": "./index.html",
+  "name": "نظام إدارة درجات الطلاب",
+  "short_name": "الدرجات",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#F5F5DC",
   "theme_color": "#4169E1",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
